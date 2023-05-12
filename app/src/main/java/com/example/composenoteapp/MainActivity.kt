@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Create
@@ -41,7 +43,9 @@ import com.example.composenoteapp.ui.theme.ComposeNoteAppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
@@ -55,7 +59,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val tempNote =listOf<Note>(Note("A"), Note("B"),
-            Note("In this example, we define a Person class with a name and age property. Then, we create a list of three Person objects using the listOf function, with each object having a name and age. Finally, we print the list of people to the console using println()."))
+            Note("In this example, we define a Person class with a name and age property." +
+                    " Then, we create a list of three Person objects using the listOf function," +
+                    " with each object having a name and age. Finally, we print the list of " +
+                    "people to the console using println().",
+                ),
+            Note("As a character from a medieval-fantasy setting, Flayn from Fire Emblem Three Houses may not be familiar with the concept of a fast-food restaurant like McDonald's. However, if we were to imagine her ordering at McDonald's, she may prefer something on the lighter side, as she is depicted as a gentle and delicate character.\n" +
+                    "\n" +
+                    "She might enjoy a simple cheeseburger or a Filet-O-Fish sandwich, as they are not overly heavy or greasy. She may also prefer a side of apple slices or a salad rather than French fries. For a beverage, she might choose a small milkshake or a bottled water.\n" +
+                    "\n" +
+                    "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of."
+                , "Flayn's Mcdonald's Order")
+            )
         for(note in tempNote)
         {
             vm.addNote(note)
@@ -81,13 +96,14 @@ fun MasterControl(modifier: Modifier = Modifier)
 {
     val vm = viewModel<NoteViewModel>()
     var control by rememberSaveable {
-        mutableStateOf(true)
+        mutableStateOf("Home")
     }
-    if(control) Home(onContinueClicked = {control = false})
+    if(control == "Home") Home(onContinueClicked = {control = "AddNote"})
     else AddNote(onContinueClicked = {
-        control = true
-        vm.addNote(Note(noteSavedValue))
+        control = "Home"
+        vm.addNote(Note(noteSavedValue, noteTitle))
         noteSavedValue = ""
+        noteTitle =""
     })
 }
 
@@ -148,7 +164,9 @@ fun AddNote(
 
     Surface(modifier = Modifier.fillMaxSize()
         ) {
-        Column(modifier = Modifier,
+        Column(modifier = Modifier
+            //.background(Color.Gray)
+            ,
         verticalArrangement = Arrangement.Top) {
             Text(text="Add New Note")
             TextField(value = title, onValueChange = {title = it},
@@ -193,6 +211,19 @@ fun AddNote(
 fun NoteItem( note: Note)
 {
     val vm = viewModel<NoteViewModel>()
+    val buttonClicked = remember { mutableStateOf(false)}
+    if(buttonClicked.value == true) {
+        Surface() {
+            Column() {
+            NoteView(note = note)
+                //Temp code to view note/title until mastercontrol can view it
+                Button(onClick = { buttonClicked.value=false }) {
+                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
+                }
+            }
+        }
+    }
+    else
     Surface(modifier = Modifier
      //   .background(color = Color.Gray)
     ) {
@@ -200,26 +231,70 @@ fun NoteItem( note: Note)
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 8.dp)
+                //.background(Color.LightGray)
+                .border(1.dp, Color.Black)
             ,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = note.note,
-            modifier = Modifier.weight(1f)
+            if(note.title == ""){
+            ClickableText(
+                text = AnnotatedString(note.note),
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    buttonClicked.value = true
+                }
             )
+            }
+            else
+            {
+                ClickableText(
+                    text = AnnotatedString(note.title),
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        buttonClicked.value = true
+                    }
+                )
+            }
+
             Button(
                 modifier = Modifier
-                    .weight((0.4f))
+                    .weight((0.25f))
                 ,
                 onClick = {
                 vm.deleteNote(note)
             }) {
                 Icon(imageVector = Icons.Rounded.Delete, contentDescription = null,
-                    //modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f)
              )
             }
         }
     }
 }
+
+@Composable
+fun NoteView(note: Note)
+{
+    Surface(modifier = Modifier
+        .fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(note.title,
+            fontSize = 30.sp)
+            Text(note.note)
+        }
+    }
+}
+
+@Preview@Composable
+fun NoteViewPreview()
+{
+    NoteView(note = Note("As a character from a medieval-fantasy setting, Flayn from Fire Emblem Three Houses may not be familiar with the concept of a fast-food restaurant like McDonald's. However, if we were to imagine her ordering at McDonald's, she may prefer something on the lighter side, as she is depicted as a gentle and delicate character.\n" +
+            "\n" +
+            "She might enjoy a simple cheeseburger or a Filet-O-Fish sandwich, as they are not overly heavy or greasy. She may also prefer a side of apple slices or a salad rather than French fries. For a beverage, she might choose a small milkshake or a bottled water.\n" +
+            "\n" +
+            "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of."
+        , "Flayn's Mcdonald's Order"))
+}
+
 
 @Preview
 @Composable
@@ -228,6 +303,15 @@ fun NoteItemPreview()
     NoteItem(Note("This is a note"))
 }
 
+@Preview
+@Composable
+fun BigAssNoteItemPreview()
+{
+    NoteItem(Note("This is a note with a shit ton of text on it." +
+            "Ideally the app looks just as beautiful as when the note is a entire paragraph" +
+            "Either way, my eyes are burning due to the light mode, but I can't read for shit" +
+            "and have to set the brightness high af on dark mode. Lord Help me. DROP DATABASE"))
+}
 
 @Preview
 @Composable
