@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -75,6 +76,8 @@ class MainActivity : ComponentActivity() {
         {
             vm.addNote(note)
         }
+        noteTitle =""
+        noteSavedValue =""
 
         setContent {
             vm.addNote(Note("First"))
@@ -169,7 +172,7 @@ fun AddNote(
             ,
         verticalArrangement = Arrangement.Top) {
             Text(text="Add New Note")
-            TextField(value = title, onValueChange = {title = it},
+            TextField(value = title, onValueChange = { title = it; noteTitle = it},
                 label = {Text("Enter Title") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -236,6 +239,7 @@ fun NoteItem( note: Note)
             ,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            //Does NOT have a title
             if(note.title == ""){
             ClickableText(
                 text = AnnotatedString(note.note),
@@ -245,6 +249,7 @@ fun NoteItem( note: Note)
                 }
             )
             }
+            //DOES have a title
             else
             {
                 ClickableText(
@@ -252,7 +257,8 @@ fun NoteItem( note: Note)
                     modifier = Modifier.weight(1f),
                     onClick = {
                         buttonClicked.value = true
-                    }
+                    },
+                    style = TextStyle(fontSize = 25.sp)
                 )
             }
 
