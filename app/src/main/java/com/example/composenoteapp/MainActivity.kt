@@ -48,17 +48,32 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Room
 
 
 lateinit var noteSavedValue: String
 lateinit var noteTitle: String
+lateinit var viewNote: Note
 
 class MainActivity : ComponentActivity() {
 
-    private val vm by viewModels<NoteViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val db = Room.databaseBuilder(
+            applicationContext,
+            NoteDatabase::class.java, "my-db"
+        ).build();
+        val vm by viewModels<NoteViewModel>()
+
+        Thread {
+            val roomDbInitialList = db.noteDao().retrieveAllNotes()
+            for(note in roomDbInitialList)
+            {
+                vm.addNote(note)
+            }
+        }.start()
         val tempNote =listOf<Note>(Note("A"), Note("B"),
             Note("In this example, we define a Person class with a name and age property." +
                     " Then, we create a list of three Person objects using the listOf function," +
@@ -72,10 +87,7 @@ class MainActivity : ComponentActivity() {
                     "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of."
                 , "Flayn's Mcdonald's Order")
             )
-        for(note in tempNote)
-        {
-            vm.addNote(note)
-        }
+
         noteTitle =""
         noteSavedValue =""
 
@@ -102,12 +114,16 @@ fun MasterControl(modifier: Modifier = Modifier)
         mutableStateOf("Home")
     }
     if(control == "Home") Home(onContinueClicked = {control = "AddNote"})
-    else AddNote(onContinueClicked = {
+    else if(control == "AddNote")AddNote(onContinueClicked = {
         control = "Home"
         vm.addNote(Note(noteSavedValue, noteTitle))
         noteSavedValue = ""
         noteTitle =""
     })
+    else if(control == "ViewNote")
+    {
+
+    }
 }
 
 
@@ -215,7 +231,8 @@ fun NoteItem( note: Note)
 {
     val vm = viewModel<NoteViewModel>()
     val buttonClicked = remember { mutableStateOf(false)}
-    if(buttonClicked.value == true) {
+    if(buttonClicked.value) {
+
         Surface() {
             Column() {
             NoteView(note = note)
@@ -227,7 +244,7 @@ fun NoteItem( note: Note)
         }
     }
     else
-    Surface(modifier = Modifier
+        Surface(modifier = Modifier
      //   .background(color = Color.Gray)
     ) {
         Row(

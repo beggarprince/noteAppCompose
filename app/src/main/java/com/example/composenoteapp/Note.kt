@@ -1,9 +1,12 @@
 package com.example.composenoteapp
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "NotesDB")
 data class Note (
-    val note: String,
+    @PrimaryKey val note: String,
     val picture: Int,
     val title: String
         )
