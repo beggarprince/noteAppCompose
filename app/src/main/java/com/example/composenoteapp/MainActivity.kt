@@ -47,6 +47,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 
@@ -54,6 +56,7 @@ import androidx.room.Room
 lateinit var noteSavedValue: String
 lateinit var noteTitle: String
 lateinit var viewNote: Note
+private const val TAG = "DAO"
 
 class MainActivity : ComponentActivity() {
 
@@ -64,14 +67,25 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(
             applicationContext,
             NoteDatabase::class.java, "my-db"
-        ).build();
-        val vm by viewModels<NoteViewModel>()
+        ).allowMainThreadQueries().build()
+        val dao = db.noteDao()
+
+        val vm by viewModels<NoteViewModel>(
+            factoryProducer = {
+                object : ViewModelProvider.Factory{
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        Log.d(TAG, "Creating ViewModel of type")
+                        return NoteViewModel(dao) as T
+                    }
+                }
+            }
+        )
 
         Thread {
-            val roomDbInitialList = db.noteDao().retrieveAllNotes()
+            val roomDbInitialList = dao.retrieveAllNotes()
             for(note in roomDbInitialList)
             {
-                vm.addNote(note)
+                vm.initializeNoteList(note)
             }
         }.start()
         val tempNote =listOf<Note>(Note("A"), Note("B"),
@@ -92,7 +106,7 @@ class MainActivity : ComponentActivity() {
         noteSavedValue =""
 
         setContent {
-            vm.addNote(Note("First"))
+            //vm.initializeNoteList(Note("First"))
             ComposeNoteAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(

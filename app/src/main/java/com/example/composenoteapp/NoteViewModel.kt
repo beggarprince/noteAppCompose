@@ -6,18 +6,25 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 
-class NoteViewModel()
+class NoteViewModel(private val dao: NoteDao)
     : ViewModel(){
     val notes = mutableStateListOf<Note>()
 
     fun deleteNote(note: Note){
         notes.remove(note)
+        dao.delete(note)
     }
 
     fun addNote(note: Note)
     {
         notes.add(note)
-        //dao.insert(note)
+
+        dao.insert(note)
+    }
+
+    fun initializeNoteList(note : Note)
+    {
+        notes.add(note)
     }
 
 }

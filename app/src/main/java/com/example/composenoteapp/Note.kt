@@ -6,9 +6,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "NotesDB")
 data class Note (
-    @PrimaryKey val note: String,
+     val note: String,
     val picture: Int,
-    val title: String
+    val title: String,
+     @PrimaryKey(autoGenerate = true)
+     val id:Int? = null,
         )
 {
     constructor(note: String): this(note, -1, "")
