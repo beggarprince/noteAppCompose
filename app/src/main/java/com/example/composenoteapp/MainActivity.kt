@@ -125,6 +125,7 @@ fun MasterControl(modifier: Modifier = Modifier)
 {
 
     val vm = viewModel<NoteViewModel>()
+
     var control by rememberSaveable {
         mutableStateOf("Home")
     }
@@ -140,6 +141,14 @@ fun MasterControl(modifier: Modifier = Modifier)
             onDeleteClick = {note: Note ->
                 vm.deleteNote(note)
             },
+            returnByTag = {
+                 val list = vm.getNotesByTags("Flayn")
+                vm.notes.clear()
+                for(l in list)
+                {
+                    vm.notes.add(l)
+                }
+                          },
             vm.notes
         )
         "AddNote" -> AddNote(onContinueClicked = {
@@ -176,10 +185,12 @@ fun Home(
     onContinueClicked: () -> Unit,
     onExpandClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
+    returnByTag: () -> Unit,
     notes : SnapshotStateList<Note>
 )
 {
-   // val vm = viewModel<NoteViewModel>()
+
+
     Surface(modifier = Modifier.fillMaxSize(),
     color = MaterialTheme.colorScheme.background) {
         //Top row
@@ -187,9 +198,8 @@ fun Home(
             verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.End)
         {
-            Button(onClick = {
-
-                             },
+            Button(onClick = returnByTag
+                             ,
             modifier = Modifier) {
                 Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
             }
@@ -216,7 +226,7 @@ fun Home(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.End,
     ) {
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = {}) {
             Icon(imageVector = Icons.Rounded.Info, contentDescription =null )
         }
         Button(
@@ -511,7 +521,7 @@ fun HomePreview()
         {
 
         },
-        {},{},
+        {},{},{},
         SnapshotStateList<Note>()
     )
 }

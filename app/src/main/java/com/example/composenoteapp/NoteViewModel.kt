@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 
 class NoteViewModel(private val dao: NoteDao)
     : ViewModel(){
-    val notes = mutableStateListOf<Note>()
+    var notes = mutableStateListOf<Note>()
 
     fun deleteNote(note: Note){
         notes.remove(note)
@@ -43,6 +43,13 @@ class NoteViewModel(private val dao: NoteDao)
     fun getTags() :List<String>
     {
         val list = dao.retrieveUniqueTags()
+        return if(list.isEmpty()) emptyList()
+        else return list
+    }
+
+    fun getNotesByTags(tag :String) :List<Note>
+    {
+        val list = dao.getNotesByTag(tag)
         return if(list.isEmpty()) emptyList()
         else return list
     }
