@@ -55,6 +55,7 @@ lateinit var noteSavedValue: String
 lateinit var noteTitle: String
 lateinit var viewNote: Note
 lateinit var date: String
+lateinit var currentNote: Note
 private const val TAG = "DAO"
 
 class MainActivity : ComponentActivity() {
@@ -67,6 +68,7 @@ class MainActivity : ComponentActivity() {
         noteSavedValue =""
         val currentDate = LocalDate.now()
         date = currentDate.toString()
+        currentNote = Note("a", date)
 
         val db = Room.databaseBuilder(
             applicationContext,
@@ -118,6 +120,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MasterControl(modifier: Modifier = Modifier)
 {
+
     val vm = viewModel<NoteViewModel>()
     var control by rememberSaveable {
         mutableStateOf("Home")
@@ -125,8 +128,9 @@ fun MasterControl(modifier: Modifier = Modifier)
     when (control) {
         "Home" -> Home(onContinueClicked = {control = "AddNote"},
             onExpandClick = {
+                note: Note ->
+                currentNote = note
                 control = "ViewNote"
-                Log.d(TAG, "CHUPAPI MUNYANYO")
             }
         )
         "AddNote" -> AddNote(onContinueClicked = {
@@ -136,7 +140,7 @@ fun MasterControl(modifier: Modifier = Modifier)
             noteTitle =""
         })
         "ViewNote" -> {
-            NoteView(note = Note("Flayn is a baddie", "Flayn", date))
+            NoteView(note = currentNote)
         }
     }
 }
@@ -146,7 +150,7 @@ fun MasterControl(modifier: Modifier = Modifier)
 fun Home(
     modifier: Modifier = Modifier,
     onContinueClicked: () -> Unit,
-    onExpandClick: () -> Unit
+    onExpandClick: (Note) -> Unit
 )
 {
     val vm = viewModel<NoteViewModel>()
@@ -243,9 +247,10 @@ fun AddNote(
 
 @Composable
 fun NoteItem(note: Note,
-             onExpandClick: () -> Unit)
+             onExpandClick: (Note) -> Unit)
 {
     //val vm = viewModel<NoteViewModel>()
+    val labmdaHandler: () -> Unit = {onExpandClick(note) }
     val buttonClicked = remember { mutableStateOf(false)}
     if(buttonClicked.value) {
         //----------
@@ -254,7 +259,9 @@ fun NoteItem(note: Note,
             Column() {
             NoteView(note = note)
                 //Temp code to view note/title until mastercontrol can view it
-                Button(onClick = onExpandClick){//{ buttonClicked.value=false }) {
+                Button(onClick = labmdaHandler
+
+                ){//{ buttonClicked.value=false }) {
                     Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
                 }
             }
@@ -282,7 +289,7 @@ fun NoteItem(note: Note,
                 modifier = Modifier.weight(1f),
                 onClick = {
                     buttonClicked.value = true
-                    //miniExpand
+
                 }
             )
             }

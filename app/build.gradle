@@ -69,6 +69,8 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
+    implementation "androidx.compose.material:material-ripple"
+
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
 
     //val room_version = "2.5.1"
