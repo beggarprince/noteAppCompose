@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material.icons.rounded.Delete
@@ -148,7 +149,12 @@ fun MasterControl(modifier: Modifier = Modifier)
             noteTitle =""
         })
         "ViewNote" -> {
-            NoteView(note = currentNote)
+            NoteView(note = currentNote,
+            onUpdateNote = { note: Note ->
+                vm.updateNote(note)
+                           },
+            onUpdateCancel = { control = "Home" }
+            )
         }
     }
 }
@@ -269,7 +275,7 @@ fun NoteItem(note: Note,
         //Note is Expanded
         Surface() {
             Column() {
-            NoteView(note = note)
+            expandView(note)
                 //Temp code to view note/title until mastercontrol can view it
                 Button(onClick = labmdaHandler
 
@@ -333,11 +339,33 @@ fun NoteItem(note: Note,
     }
 }
 
+@Composable
+fun expandView(note :Note) {
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                note.title,
+                fontSize = 30.sp
+            )
+            Text(note.note)
+            Text(note.date)
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteView(note: Note)
+fun NoteView(
+    note: Note,
+    onUpdateNote: (Note) -> Unit,
+    onUpdateCancel: () -> Unit
+)
 {
  var edit by remember{ mutableStateOf(false)}
+    val updateHandler: () -> Unit = {onUpdateNote(note) }
     Surface(modifier = Modifier
         .fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -372,11 +400,28 @@ fun NoteView(note: Note)
         Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.End) {
-        Button(onClick = { edit = !edit },
-            ) {
-            if(!edit)Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
-            else Icon(imageVector = Icons.Rounded.Check, contentDescription = null )
-        }
+            //View Mode
+            if (!edit) {
+                Button(onClick =  onUpdateCancel ) {
+                    Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                }
+                Button(
+                    onClick = { edit = !edit },
+                ) {
+                    Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                }
+            }
+            //Edit Mode
+            else {
+                Button(onClick = { edit = !edit } ) {
+                    Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                }
+                Button(
+                    onClick = updateHandler,
+                ) {
+                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
+                }
+            }
         }
     }
 }
@@ -390,7 +435,8 @@ fun NoteViewPreview()
             "She might enjoy a simple cheeseburger or a Filet-O-Fish sandwich, as they are not overly heavy or greasy. She may also prefer a side of apple slices or a salad rather than French fries. For a beverage, she might choose a small milkshake or a bottled water.\n" +
             "\n" +
             "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of.",
-         "Flayn's Mcdonald's Order","5/13/2023"))
+         "Flayn's Mcdonald's Order","5/13/2023"),
+        {},{})
 }
 
 

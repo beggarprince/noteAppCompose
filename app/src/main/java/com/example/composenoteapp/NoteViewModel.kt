@@ -36,6 +36,10 @@ class NoteViewModel(private val dao: NoteDao)
             return list
     }
 
+    fun updateNote(note : Note){
+        dao.update(note)
+    }
+
 
 }
 
