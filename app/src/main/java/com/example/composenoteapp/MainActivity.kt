@@ -6,12 +6,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +30,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,7 +48,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
-import java.lang.Exception
 import java.time.LocalDate
 
 
@@ -126,16 +122,22 @@ fun MasterControl(modifier: Modifier = Modifier)
     var control by rememberSaveable {
         mutableStateOf("Home")
     }
-    if(control == "Home") Home(onContinueClicked = {control = "AddNote"})
-    else if(control == "AddNote")AddNote(onContinueClicked = {
-        control = "Home"
-        vm.addNote(Note(noteSavedValue, noteTitle, date))
-        noteSavedValue = ""
-        noteTitle =""
-    })
-    else if(control == "ViewNote")
-    {
-
+    when (control) {
+        "Home" -> Home(onContinueClicked = {control = "AddNote"},
+            onExpandClick = {
+                control = "ViewNote"
+                Log.d(TAG, "CHUPAPI MUNYANYO")
+            }
+        )
+        "AddNote" -> AddNote(onContinueClicked = {
+            control = "Home"
+            vm.addNote(Note(noteSavedValue, noteTitle, date))
+            noteSavedValue = ""
+            noteTitle =""
+        })
+        "ViewNote" -> {
+            NoteView(note = Note("Flayn is a baddie", "Flayn", date))
+        }
     }
 }
 
@@ -143,7 +145,8 @@ fun MasterControl(modifier: Modifier = Modifier)
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
-    onContinueClicked: () -> Unit
+    onContinueClicked: () -> Unit,
+    onExpandClick: () -> Unit
 )
 {
     val vm = viewModel<NoteViewModel>()
@@ -160,7 +163,7 @@ fun Home(
         {
             items(items = vm.notes){
                     item ->
-                NoteItem(note = item)
+                NoteItem(note = item, onExpandClick)
             }
         }
         }
@@ -213,7 +216,6 @@ fun AddNote(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
-                    //.fillMaxHeight()
                 )
             Row(modifier = Modifier
                 .fillMaxWidth()
@@ -240,22 +242,26 @@ fun AddNote(
 }
 
 @Composable
-fun NoteItem( note: Note)
+fun NoteItem(note: Note,
+             onExpandClick: () -> Unit)
 {
-    val vm = viewModel<NoteViewModel>()
+    //val vm = viewModel<NoteViewModel>()
     val buttonClicked = remember { mutableStateOf(false)}
     if(buttonClicked.value) {
-
+        //----------
+        //Note is Expanded
         Surface() {
             Column() {
             NoteView(note = note)
                 //Temp code to view note/title until mastercontrol can view it
-                Button(onClick = { buttonClicked.value=false }) {
+                Button(onClick = onExpandClick){//{ buttonClicked.value=false }) {
                     Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
                 }
             }
         }
     }
+    //--------------
+    //Note Collapsed
     else
         Surface(modifier = Modifier
      //   .background(color = Color.Gray)
@@ -276,6 +282,7 @@ fun NoteItem( note: Note)
                 modifier = Modifier.weight(1f),
                 onClick = {
                     buttonClicked.value = true
+                    //miniExpand
                 }
             )
             }
@@ -291,13 +298,13 @@ fun NoteItem( note: Note)
                     style = TextStyle(fontSize = 25.sp)
                 )
             }
-
+            //Delete Note
             Button(
                 modifier = Modifier
                     .weight((0.25f))
                 ,
                 onClick = {
-                vm.deleteNote(note)
+                //vm.deleteNote(note)
             }) {
                 Icon(imageVector = Icons.Rounded.Delete, contentDescription = null,
                     modifier = Modifier.weight(1f)
@@ -339,7 +346,7 @@ fun NoteViewPreview()
 @Composable
 fun NoteItemPreview()
 {
-    NoteItem(note = Note("This is a note","a",""))
+    NoteItem(note = Note("This is a note","Title",""), {})
 }
 
 @Preview
@@ -349,7 +356,8 @@ fun BigAssNoteItemPreview()
     NoteItem(Note("This is a note with a shit ton of text on it." +
             "Ideally the app looks just as beautiful as when the note is a entire paragraph" +
             "Either way, my eyes are burning due to the light mode, but I can't read for shit" +
-            "and have to set the brightness high af on dark mode. Lord Help me. DROP DATABASE"))
+            "and have to set the brightness high af on dark mode. Lord Help me. DROP DATABASE")
+    ,{})
 }
 
 @Preview
@@ -360,7 +368,8 @@ fun HomePreview()
     Home(modifier = Modifier,
         {
 
-        }
+        },
+        {}
     )
 }
 

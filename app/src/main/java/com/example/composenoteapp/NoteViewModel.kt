@@ -36,5 +36,6 @@ class NoteViewModel(private val dao: NoteDao)
             return list
     }
 
+
 }
 
