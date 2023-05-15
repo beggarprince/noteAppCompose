@@ -51,6 +51,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
+import java.lang.Exception
 
 
 lateinit var noteSavedValue: String
@@ -82,25 +83,15 @@ class MainActivity : ComponentActivity() {
         )
 
         Thread {
-            val roomDbInitialList = dao.retrieveAllNotes()
-            for(note in roomDbInitialList)
-            {
-                vm.initializeNoteList(note)
-            }
+
+                val roomDbInitialList = vm.getNotes()
+
+                for(note in roomDbInitialList)
+                {
+                    vm.initializeNoteList(note)
+                }
+
         }.start()
-        val tempNote =listOf<Note>(Note("A"), Note("B"),
-            Note("In this example, we define a Person class with a name and age property." +
-                    " Then, we create a list of three Person objects using the listOf function," +
-                    " with each object having a name and age. Finally, we print the list of " +
-                    "people to the console using println().",
-                ),
-            Note("As a character from a medieval-fantasy setting, Flayn from Fire Emblem Three Houses may not be familiar with the concept of a fast-food restaurant like McDonald's. However, if we were to imagine her ordering at McDonald's, she may prefer something on the lighter side, as she is depicted as a gentle and delicate character.\n" +
-                    "\n" +
-                    "She might enjoy a simple cheeseburger or a Filet-O-Fish sandwich, as they are not overly heavy or greasy. She may also prefer a side of apple slices or a salad rather than French fries. For a beverage, she might choose a small milkshake or a bottled water.\n" +
-                    "\n" +
-                    "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of."
-                , "Flayn's Mcdonald's Order")
-            )
 
         noteTitle =""
         noteSavedValue =""
@@ -114,6 +105,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                    MasterControl()
+                //NoteView(note = Note("String"))
                 }
             }
         }
@@ -354,6 +346,7 @@ fun BigAssNoteItemPreview()
 @Composable
 fun HomePreview()
 {
+
     Home(modifier = Modifier,
         {
 
@@ -365,6 +358,7 @@ fun HomePreview()
 @Composable
 fun AddNotePreview()
 {
+
     AddNote(modifier = Modifier,
         {})
 }

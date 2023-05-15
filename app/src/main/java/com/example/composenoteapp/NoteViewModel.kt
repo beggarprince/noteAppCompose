@@ -27,5 +27,14 @@ class NoteViewModel(private val dao: NoteDao)
         notes.add(note)
     }
 
+    fun getNotes() :List<Note>
+    {
+        val list = dao.retrieveAllNotes()
+
+        return if (list.isEmpty()) emptyList()
+        else
+            return list
+    }
+
 }
 
