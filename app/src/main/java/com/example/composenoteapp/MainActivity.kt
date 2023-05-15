@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.example.composenoteapp.ui.theme.ComposeNoteAppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -126,12 +127,18 @@ fun MasterControl(modifier: Modifier = Modifier)
         mutableStateOf("Home")
     }
     when (control) {
-        "Home" -> Home(onContinueClicked = {control = "AddNote"},
+        "Home" -> Home(
+            modifier,
+            onContinueClicked = {control = "AddNote"},
             onExpandClick = {
                 note: Note ->
                 currentNote = note
                 control = "ViewNote"
-            }
+            },
+            onDeleteClick = {note: Note ->
+                vm.deleteNote(note)
+            },
+            vm.notes
         )
         "AddNote" -> AddNote(onContinueClicked = {
             control = "Home"
@@ -150,12 +157,13 @@ fun MasterControl(modifier: Modifier = Modifier)
 fun Home(
     modifier: Modifier = Modifier,
     onContinueClicked: () -> Unit,
-    onExpandClick: (Note) -> Unit
+    onExpandClick: (Note) -> Unit,
+    onDeleteClick: (Note) -> Unit,
+    notes : SnapshotStateList<Note>
 )
 {
-    val vm = viewModel<NoteViewModel>()
-
-    Surface(modifier = Modifier,
+   // val vm = viewModel<NoteViewModel>()
+    Surface(modifier = Modifier.fillMaxSize(),
     color = MaterialTheme.colorScheme.background) {
 
         Row(modifier = Modifier
@@ -165,9 +173,9 @@ fun Home(
         horizontalArrangement = Arrangement.Center) {
             LazyColumn(modifier= Modifier.padding(vertical = 2.dp),)
         {
-            items(items = vm.notes){
+            items(items = notes){
                     item ->
-                NoteItem(note = item, onExpandClick)
+                NoteItem(note = item, onExpandClick, onDeleteClick)
             }
         }
         }
@@ -247,10 +255,13 @@ fun AddNote(
 
 @Composable
 fun NoteItem(note: Note,
-             onExpandClick: (Note) -> Unit)
+             onExpandClick: (Note) -> Unit,
+             onDeleteClick: (Note) -> Unit
+             )
 {
     //val vm = viewModel<NoteViewModel>()
     val labmdaHandler: () -> Unit = {onExpandClick(note) }
+    val deleteHandler: () -> Unit = {onDeleteClick(note)}
     val buttonClicked = remember { mutableStateOf(false)}
     if(buttonClicked.value) {
         //----------
@@ -305,14 +316,14 @@ fun NoteItem(note: Note,
                     style = TextStyle(fontSize = 25.sp)
                 )
             }
+
             //Delete Note
             Button(
                 modifier = Modifier
                     .weight((0.25f))
                 ,
-                onClick = {
-                //vm.deleteNote(note)
-            }) {
+                onClick = deleteHandler
+            ) {
                 Icon(imageVector = Icons.Rounded.Delete, contentDescription = null,
                     modifier = Modifier.weight(1f)
              )
@@ -332,6 +343,11 @@ fun NoteView(note: Note)
             fontSize = 30.sp)
             Text(note.note)
             Text(note.date)
+        }
+        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+
         }
     }
 }
@@ -353,7 +369,7 @@ fun NoteViewPreview()
 @Composable
 fun NoteItemPreview()
 {
-    NoteItem(note = Note("This is a note","Title",""), {})
+    NoteItem(note = Note("This is a note","Title",""), {}, {})
 }
 
 @Preview
@@ -364,7 +380,7 @@ fun BigAssNoteItemPreview()
             "Ideally the app looks just as beautiful as when the note is a entire paragraph" +
             "Either way, my eyes are burning due to the light mode, but I can't read for shit" +
             "and have to set the brightness high af on dark mode. Lord Help me. DROP DATABASE")
-    ,{})
+    ,{}, {})
 }
 
 @Preview
@@ -376,7 +392,8 @@ fun HomePreview()
         {
 
         },
-        {}
+        {},{},
+        SnapshotStateList<Note>()
     )
 }
 
