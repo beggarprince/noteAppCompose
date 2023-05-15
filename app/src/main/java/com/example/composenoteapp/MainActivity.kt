@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Button
@@ -332,22 +333,50 @@ fun NoteItem(note: Note,
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteView(note: Note)
 {
-    //val vm = viewModel<NoteViewModel>()
+ var edit by remember{ mutableStateOf(false)}
     Surface(modifier = Modifier
         .fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth()) {
+            if(!edit){
             Text(note.title,
             fontSize = 30.sp)
             Text(note.note)
             Text(note.date)
+            }
+            else
+            {
+                var tempTitle: String= note.title
+                var tempNote = note.note
+                TextField(value = tempTitle,
+                    onValueChange = {tempTitle = it},
+                    label = {Text("Type new note")},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+                TextField(value = tempNote,
+                    onValueChange = {tempNote = it},
+                    label = {Text("Type new note")},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+                //Text(note.date)
+            }
+
         }
         Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.SpaceBetween) {
-
+        horizontalArrangement = Arrangement.End) {
+        Button(onClick = { edit = !edit },
+            ) {
+            if(!edit)Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+            else Icon(imageVector = Icons.Rounded.Check, contentDescription = null )
+        }
         }
     }
 }
