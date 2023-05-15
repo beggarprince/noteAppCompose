@@ -52,11 +52,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 import java.lang.Exception
+import java.time.LocalDate
 
 
 lateinit var noteSavedValue: String
 lateinit var noteTitle: String
 lateinit var viewNote: Note
+lateinit var date: String
 private const val TAG = "DAO"
 
 class MainActivity : ComponentActivity() {
@@ -64,6 +66,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        noteTitle =""
+        noteSavedValue =""
+        val currentDate = LocalDate.now()
+        date = currentDate.toString()
 
         val db = Room.databaseBuilder(
             applicationContext,
@@ -93,8 +100,8 @@ class MainActivity : ComponentActivity() {
 
         }.start()
 
-        noteTitle =""
-        noteSavedValue =""
+
+
 
         setContent {
             //vm.initializeNoteList(Note("First"))
@@ -122,7 +129,7 @@ fun MasterControl(modifier: Modifier = Modifier)
     if(control == "Home") Home(onContinueClicked = {control = "AddNote"})
     else if(control == "AddNote")AddNote(onContinueClicked = {
         control = "Home"
-        vm.addNote(Note(noteSavedValue, noteTitle))
+        vm.addNote(Note(noteSavedValue, noteTitle, date))
         noteSavedValue = ""
         noteTitle =""
     })
@@ -303,25 +310,28 @@ fun NoteItem( note: Note)
 @Composable
 fun NoteView(note: Note)
 {
+    //val vm = viewModel<NoteViewModel>()
     Surface(modifier = Modifier
         .fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(note.title,
             fontSize = 30.sp)
             Text(note.note)
+            Text(note.date)
         }
     }
 }
 
-@Preview@Composable
+@Preview
+@Composable
 fun NoteViewPreview()
 {
     NoteView(note = Note("As a character from a medieval-fantasy setting, Flayn from Fire Emblem Three Houses may not be familiar with the concept of a fast-food restaurant like McDonald's. However, if we were to imagine her ordering at McDonald's, she may prefer something on the lighter side, as she is depicted as a gentle and delicate character.\n" +
             "\n" +
             "She might enjoy a simple cheeseburger or a Filet-O-Fish sandwich, as they are not overly heavy or greasy. She may also prefer a side of apple slices or a salad rather than French fries. For a beverage, she might choose a small milkshake or a bottled water.\n" +
             "\n" +
-            "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of."
-        , "Flayn's Mcdonald's Order"))
+            "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of.",
+         "Flayn's Mcdonald's Order","5/13/2023"))
 }
 
 
@@ -329,7 +339,7 @@ fun NoteViewPreview()
 @Composable
 fun NoteItemPreview()
 {
-    NoteItem(Note("This is a note"))
+    NoteItem(note = Note("This is a note","a",""))
 }
 
 @Preview
@@ -362,3 +372,4 @@ fun AddNotePreview()
     AddNote(modifier = Modifier,
         {})
 }
+
