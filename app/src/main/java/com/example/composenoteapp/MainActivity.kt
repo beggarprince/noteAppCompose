@@ -148,7 +148,11 @@ fun MasterControl(modifier: Modifier = Modifier)
             vm.addNote(Note(noteSavedValue, noteTitle, date))
             noteSavedValue = ""
             noteTitle =""
-        })
+        },
+            onCanceledClick ={
+                control = "Home"
+            }
+        )
         "ViewNote" -> {
             NoteView(note = currentNote,
             onUpdateNote = { note: Note,
@@ -217,7 +221,8 @@ fun Home(
 @Composable
 fun AddNote(
     modifier:Modifier = Modifier,
-    onContinueClicked: () -> Unit
+    onContinueClicked: () -> Unit,
+    onCanceledClick: () -> Unit
 )
 {
     var temp by remember { mutableStateOf("")}
@@ -248,9 +253,9 @@ fun AddNote(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.End) {
-                Button(onClick = { /*TODO*/ },
+                Button(onClick = onCanceledClick,
                     modifier = Modifier) {
-                    Icon(imageVector = Icons.Rounded.Phone, contentDescription = null, modifier = Modifier)
+                    Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null, modifier = Modifier)
                 }
                   Button(onClick = onContinueClicked,
                         modifier = Modifier,
@@ -488,6 +493,6 @@ fun AddNotePreview()
 {
 
     AddNote(modifier = Modifier,
-        {})
+        {},{})
 }
 
