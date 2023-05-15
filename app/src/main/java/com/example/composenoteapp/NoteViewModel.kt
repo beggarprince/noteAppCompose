@@ -40,6 +40,13 @@ class NoteViewModel(private val dao: NoteDao)
         dao.update(note)
     }
 
+    fun getTags() :List<String>
+    {
+        val list = dao.retrieveUniqueTags()
+        return if(list.isEmpty()) emptyList()
+        else return list
+    }
+
 
 }
 

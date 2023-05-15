@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,6 +58,7 @@ import java.time.LocalDate
 
 lateinit var noteSavedValue: String
 lateinit var noteTitle: String
+lateinit var noteTag: String
 lateinit var viewNote: Note
 lateinit var date: String
 lateinit var currentNote: Note
@@ -72,7 +74,7 @@ class MainActivity : ComponentActivity() {
         noteSavedValue =""
         val currentDate = LocalDate.now()
         date = currentDate.toString()
-        currentNote = Note("a", date)
+        currentNote = Note("a", date, "")
 
         val db = Room.databaseBuilder(
             applicationContext,
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity() {
             factoryProducer = {
                 object : ViewModelProvider.Factory{
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        Log.d(TAG, "Creating ViewModel of type")
+                        Log.d(TAG, "Creating ViewModel of type NoteViewModel")
                         return NoteViewModel(dao) as T
                     }
                 }
@@ -92,17 +94,14 @@ class MainActivity : ComponentActivity() {
         )
 
         Thread {
-
                 val roomDbInitialList = vm.getNotes()
-
                 for(note in roomDbInitialList)
                 {
                     vm.initializeNoteList(note)
                 }
-
         }.start()
-
-
+        val roomDbTags = vm.getTags()
+        for (tag in roomDbTags) Log.d(TAG, tag)
 
 
         setContent {
@@ -145,7 +144,7 @@ fun MasterControl(modifier: Modifier = Modifier)
         )
         "AddNote" -> AddNote(onContinueClicked = {
             control = "Home"
-            vm.addNote(Note(noteSavedValue, noteTitle, date))
+            vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
             noteSavedValue = ""
             noteTitle =""
         },
@@ -183,10 +182,22 @@ fun Home(
    // val vm = viewModel<NoteViewModel>()
     Surface(modifier = Modifier.fillMaxSize(),
     color = MaterialTheme.colorScheme.background) {
+        //Top row
+        Row(modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black).padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.End)
+        {
+            Button(onClick = {
 
+                             },
+            modifier = Modifier) {
+                Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+            }
+        }
+        //Notes
         Row(modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp),
+            .padding(horizontal = 4.dp, vertical = 60.dp),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Center) {
             LazyColumn(modifier= Modifier.padding(vertical = 2.dp),)
@@ -198,6 +209,7 @@ fun Home(
         }
         }
 
+        //Bottom Row
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp),
@@ -213,7 +225,8 @@ fun Home(
         ) {
             Icon(imageVector = Icons.Rounded.Create, contentDescription = null)
         }
-    }}
+    }
+    }
 }
 
 
@@ -227,6 +240,13 @@ fun AddNote(
 {
     var temp by remember { mutableStateOf("")}
     var title by remember { mutableStateOf((""))}
+    var tag by remember {mutableStateOf("Unspecified")}
+
+    //TODO
+    /*
+    Refactor
+        Remove the late init vars, pass temp Title/Tag/Note through a lambda expression
+     */
 
     Surface(modifier = Modifier.fillMaxSize()
         ) {
@@ -235,7 +255,8 @@ fun AddNote(
             ,
         verticalArrangement = Arrangement.Top) {
             Text(text="Add New Note")
-            TextField(value = title, onValueChange = { title = it; noteTitle = it},
+            TextField(value = title, onValueChange = { title = it
+                noteTitle = it},
                 label = {Text("Enter Title") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -248,6 +269,13 @@ fun AddNote(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
                 )
+            TextField(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                value = tag,
+                label = {Text("Optional Tag")},
+                onValueChange = {tag = it
+                    noteTag = it}
+            )
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
@@ -389,8 +417,9 @@ fun NoteView(
             if(!edit){
             Text(note.title,
             fontSize = 30.sp)
-            Text(note.note)
-            Text(note.date)
+                Text(note.note)
+                Text(note.date)
+                Text("TAG: "+note.tag)
             }
             else
             {
@@ -450,7 +479,7 @@ fun NoteViewPreview()
             "She might enjoy a simple cheeseburger or a Filet-O-Fish sandwich, as they are not overly heavy or greasy. She may also prefer a side of apple slices or a salad rather than French fries. For a beverage, she might choose a small milkshake or a bottled water.\n" +
             "\n" +
             "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of.",
-         "Flayn's Mcdonald's Order","5/13/2023"),
+         "Flayn's Mcdonald's Order","5/13/2023" ,"Unspecified"),
         {note: Note, string: String, String -> {}},{})
 }
 

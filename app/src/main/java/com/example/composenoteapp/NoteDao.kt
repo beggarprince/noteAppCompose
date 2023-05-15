@@ -20,4 +20,7 @@ interface NoteDao {
     @Query("SELECT * FROM NotesDB")
     fun retrieveAllNotes(): List<Note>
 
+    @Query("SELECT DISTINCT tag FROM NotesDB")
+    fun retrieveUniqueTags(): List<String>
+
 }

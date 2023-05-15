@@ -10,11 +10,15 @@ data class Note (
     var picture: Int =0,
     var title: String ="",
      var date: String ="",
+     var tag: String ="Unspecified",
      @PrimaryKey(autoGenerate = true)
      val id:Int? = null,
         )
 {
-    constructor(note: String, date:String): this(note, -1, "", date)
-    constructor(note: String, title:String, date:String): this(note, -1, title, date)
+    //No Title
+    constructor(note: String, date:String, tag: String): this(note, -1, "", date,tag)
+    //Title
+    constructor(note: String, title:String, date:String, tag: String): this(note, -1, title, date, tag)
+
 
 }
