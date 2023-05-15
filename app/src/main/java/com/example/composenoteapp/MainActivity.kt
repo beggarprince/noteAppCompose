@@ -1,6 +1,7 @@
 package com.example.composenoteapp
 
 import android.content.ContentValues.TAG
+import android.icu.text.CaseMap.Title
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -150,8 +151,14 @@ fun MasterControl(modifier: Modifier = Modifier)
         })
         "ViewNote" -> {
             NoteView(note = currentNote,
-            onUpdateNote = { note: Note ->
-                vm.updateNote(note)
+            onUpdateNote = { note: Note,
+                noteText: String,
+                title: String->
+                note.title = title
+                note.note = noteText
+                note.date = date
+                vm.updateNote(note);
+                control = "Home"
                            },
             onUpdateCancel = { control = "Home" }
             )
@@ -360,12 +367,17 @@ fun expandView(note :Note) {
 @Composable
 fun NoteView(
     note: Note,
-    onUpdateNote: (Note) -> Unit,
+    onUpdateNote: (Note, String, String) -> Unit,
     onUpdateCancel: () -> Unit
 )
 {
  var edit by remember{ mutableStateOf(false)}
-    val updateHandler: () -> Unit = {onUpdateNote(note) }
+    var tempTitle by remember{ mutableStateOf(note.title)}
+    var tempNote by remember{ mutableStateOf(note.note)}
+
+    val updateHandler: () -> Unit = {
+        onUpdateNote(note, tempNote, tempTitle)
+    }
     Surface(modifier = Modifier
         .fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -377,8 +389,6 @@ fun NoteView(
             }
             else
             {
-                var tempTitle: String= note.title
-                var tempNote = note.note
                 TextField(value = tempTitle,
                     onValueChange = {tempTitle = it},
                     label = {Text("Type new note")},
@@ -436,7 +446,7 @@ fun NoteViewPreview()
             "\n" +
             "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of.",
          "Flayn's Mcdonald's Order","5/13/2023"),
-        {},{})
+        {note: Note, string: String, String -> {}},{})
 }
 
 

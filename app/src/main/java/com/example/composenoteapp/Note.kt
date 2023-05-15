@@ -6,10 +6,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "NotesDB")
 data class Note (
-     val note: String ="",
-    val picture: Int =0,
-    val title: String ="",
-     val date: String ="",
+     var note: String ="",
+    var picture: Int =0,
+    var title: String ="",
+     var date: String ="",
      @PrimaryKey(autoGenerate = true)
      val id:Int? = null,
         )
