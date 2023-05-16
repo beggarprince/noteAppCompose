@@ -153,7 +153,7 @@ fun MasterControl(modifier: Modifier = Modifier)
         )
         "AddNote" -> AddNote(onContinueClicked = {
             control = "Home"
-            vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
+            if(noteSavedValue != "")vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
             noteSavedValue = ""
             noteTitle =""
         },
@@ -169,7 +169,7 @@ fun MasterControl(modifier: Modifier = Modifier)
                 note.title = title
                 note.note = noteText
                 note.date = date
-                vm.updateNote(note);
+                vm.updateNote(note)
                 control = "Home"
                            },
             onUpdateCancel = { control = "Home" }
@@ -190,13 +190,6 @@ fun Home(
     tags: List<String>
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedTag: String = ""
-
-    val returnHelper = {
-        Log.d(TAG, "RETURN HELPER HAS BEEN PRESSED\n")
-        isExpanded = false
-        returnByTag(selectedTag)
-    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -207,7 +200,6 @@ fun Home(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color.Black)
                     .padding(horizontal = 4.dp)
                     .padding(top = 8.dp), // Add top padding to prevent overlap
                 verticalAlignment = Alignment.Top,
@@ -283,11 +275,6 @@ fun AddNote(
     var title by remember { mutableStateOf((""))}
     var tag by remember {mutableStateOf("")}
 
-    //TODO
-    /*
-    Refactor
-        Remove the late init vars, pass temp Title/Tag/Note through a lambda expression
-     */
 
     Surface(modifier = Modifier.fillMaxSize()
         ) {
@@ -350,7 +337,7 @@ fun NoteItem(note: Note,
              )
 {
     //val vm = viewModel<NoteViewModel>()
-    val labmdaHandler: () -> Unit = {onExpandClick(note) }
+    val expandViewHelper: () -> Unit = {onExpandClick(note) }
     val deleteHandler: () -> Unit = {onDeleteClick(note)}
     val buttonClicked = remember { mutableStateOf(false)}
     if(buttonClicked.value) {
@@ -358,9 +345,10 @@ fun NoteItem(note: Note,
         //Note is Expanded
         Surface() {
             Column() {
-            expandView(note)
-                //Temp code to view note/title until mastercontrol can view it
-                Button(onClick = labmdaHandler
+            ExpandedView(note)
+                //Temp code to view note/title until
+                // mastercontrol can view it
+                Button(onClick = expandViewHelper
 
                 ){//{ buttonClicked.value=false }) {
                     Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
@@ -422,7 +410,7 @@ fun NoteItem(note: Note,
 }
 
 @Composable
-fun expandView(note: Note) {
+fun ExpandedView(note: Note) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -621,5 +609,5 @@ fun AddNotePreview()
 @Preview
 @Composable
 fun ExpandViewPreview(){
-    expandView(Note("NOTE text goes here", "TITLE", "FLAYN", "12/01/2022"))
+    ExpandedView(Note("NOTE text goes here", "TITLE", "FLAYN", "12/01/2022"))
 }
