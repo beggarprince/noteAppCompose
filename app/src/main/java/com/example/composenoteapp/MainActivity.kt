@@ -49,6 +49,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -185,91 +186,89 @@ fun Home(
     onExpandClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
     returnByTag: (String) -> Unit,
-    notes : SnapshotStateList<Note>,
-    tags : List<String>
-)
-{
-    var isExpanded by remember{ mutableStateOf(false)}
+    notes: SnapshotStateList<Note>,
+    tags: List<String>
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    var selectedTag: String = ""
 
-    var selectedTag: String =""
     val returnHelper = {
-        Log.d(TAG,"RETURN HELPER HAS BEEN PRESSED\n")
+        Log.d(TAG, "RETURN HELPER HAS BEEN PRESSED\n")
         isExpanded = false
-        returnByTag(selectedTag)}
-
-    Surface(modifier = Modifier.fillMaxSize(),
-    color = MaterialTheme.colorScheme.background) {
-        //Top row
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.Black)
-            .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.End)
-        {
-            Button(onClick = { isExpanded = true },
-            modifier = Modifier) {
-                Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
-            }
-        }
-        //Notes
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 60.dp),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.Center) {
-            LazyColumn(modifier= Modifier.padding(vertical = 2.dp),)
-        {
-            items(items = notes){
-                    item ->
-                NoteItem(note = item, onExpandClick, onDeleteClick)
-            }
-        }
-        }
-
-        //Bottom Row
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(4.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.End,
-    ) {
-        Button(onClick = {  }) {
-            Icon(imageVector = Icons.Rounded.Info, contentDescription =null )
-        }
-        Button(
-            onClick = onContinueClicked,
-            modifier = Modifier,
-        ) {
-            Icon(imageVector = Icons.Rounded.Create, contentDescription = null)
-        }
+        returnByTag(selectedTag)
     }
-        if(isExpanded)
-        {
-            Log.d(TAG,"EXPANDED---------------------------")
-            Box(
+
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column {
+            // Top row
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-            ){
-               DropdownMenu(
-                   expanded = isExpanded,
-                   onDismissRequest = {isExpanded = false}
-               ) {
-                       tags.forEach { tag ->
-                           DropdownMenuItem(
-                               onClick = {returnByTag(tag)}
-                                          ,
-                               text = {Text(tag)}
-                           )
-                       }
+                    .fillMaxWidth()
+                    .border(1.dp, Color.Black)
+                    .padding(horizontal = 4.dp)
+                    .padding(top = 8.dp), // Add top padding to prevent overlap
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(onClick = { isExpanded = true }) {
+                    Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+                }
+            }
 
-               }
-           }
+            // Notes
+            LazyColumn(
+                modifier = Modifier.weight(1f) // Occupy remaining space
+            ) {
+                items(items = notes) { item ->
+                    NoteItem(note = item, onExpandClick, onDeleteClick)
+                }
+            }
+
+            // Bottom Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+            ) {
+                Button(onClick = {}) {
+                    Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
+                }
+                Button(
+                    onClick = onContinueClicked,
+                    modifier = Modifier,
+                ) {
+                    Icon(imageVector = Icons.Rounded.Create, contentDescription = null)
+                }
+            }
+
+            if (isExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                ) {
+                    DropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = { isExpanded = false }
+                    ) {
+                        tags.forEach { tag ->
+                            DropdownMenuItem(
+                                onClick = { returnByTag(tag) },
+                                text = { Text(tag) }
+                            )
+                        }
+                    }
+                }
+            }
         }
-
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -423,21 +422,34 @@ fun NoteItem(note: Note,
 }
 
 @Composable
-fun expandView(note :Note) {
+fun expandView(note: Note) {
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
             Text(
-                note.title,
-                fontSize = 30.sp
+                text = note.title,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-            Text(note.note)
-            Text(note.date)
+            Text(
+                text = note.note,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = note.date,
+                color = Color.Gray
+            )
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -445,73 +457,110 @@ fun NoteView(
     note: Note,
     onUpdateNote: (Note, String, String) -> Unit,
     onUpdateCancel: () -> Unit
-)
-{
- var edit by remember{ mutableStateOf(false)}
-    var tempTitle by remember{ mutableStateOf(note.title)}
-    var tempNote by remember{ mutableStateOf(note.note)}
+) {
+    var edit by remember { mutableStateOf(false) }
+    var tempTitle by remember { mutableStateOf(note.title) }
+    var tempNote by remember { mutableStateOf(note.note) }
 
     val updateHandler: () -> Unit = {
         onUpdateNote(note, tempNote, tempTitle)
     }
-    Surface(modifier = Modifier
-        .fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            if(!edit){
-            Text(note.title,
-            fontSize = 30.sp)
-                Text(note.note)
-                Text(note.date)
-                Text("TAG: "+note.tag)
-            }
-            else
-            {
-                TextField(value = tempTitle,
-                    onValueChange = {tempTitle = it},
-                    label = {Text("Type new note")},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                )
-                TextField(value = tempNote,
-                    onValueChange = {tempNote = it},
-                    label = {Text("Type new note")},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                )
-                //Text(note.date)
-            }
 
-        }
-        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.End) {
-            //View Mode
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
             if (!edit) {
-                Button(onClick =  onUpdateCancel ) {
-                    Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                Text(
+                    text = note.title,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                )
+                Text(
+                    text = note.note,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = note.date,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "TAG: " + note.tag,
+                    color = Color.Gray
+                )
+            } else {
+                TextField(
+                    value = tempTitle,
+                    onValueChange = { tempTitle = it },
+                    label = { Text("Type new note") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+                TextField(
+                    value = tempNote,
+                    onValueChange = { tempNote = it },
+                    label = { Text("Type new note") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.End
+        ) {
+            val buttonModifier = Modifier.padding(end = 8.dp)
+            if (!edit) {
+                Button(
+                    onClick = onUpdateCancel,
+                    modifier = buttonModifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBack,
+                        contentDescription = null
+                    )
                 }
                 Button(
                     onClick = { edit = !edit },
+                    modifier = buttonModifier
                 ) {
-                    Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = null
+                    )
                 }
-            }
-            //Edit Mode
-            else {
-                Button(onClick = { edit = !edit } ) {
-                    Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+            } else {
+                Button(
+                    onClick = { edit = !edit },
+                    modifier = buttonModifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBack,
+                        contentDescription = null
+                    )
                 }
                 Button(
                     onClick = updateHandler,
+                    modifier = buttonModifier
                 ) {
-                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Check,
+                        contentDescription = null
+                    )
                 }
             }
         }
     }
 }
+
 
 @Preview
 @Composable
@@ -569,3 +618,8 @@ fun AddNotePreview()
         {},{})
 }
 
+@Preview
+@Composable
+fun ExpandViewPreview(){
+    expandView(Note("NOTE text goes here", "TITLE", "FLAYN", "12/01/2022"))
+}
