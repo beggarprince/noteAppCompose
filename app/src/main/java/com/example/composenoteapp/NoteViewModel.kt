@@ -36,6 +36,19 @@ class NoteViewModel(private val dao: NoteDao)
             return list
     }
 
+    fun getNotesAlphabetically(): List<Note>
+    {
+        val list = dao.getNotesAlphabetically()
+        return if(list.isEmpty()) emptyList()
+        else return list
+    }
+
+    fun getNotesNewest(): List<Note>{
+        val list = dao.getNotesByDateNewest()
+        return if(list.isEmpty()) emptyList()
+        else return list
+    }
+
     fun updateNote(note : Note){
         dao.update(note)
     }
@@ -53,7 +66,6 @@ class NoteViewModel(private val dao: NoteDao)
         return if(list.isEmpty()) emptyList()
         else return list
     }
-
 
 }
 

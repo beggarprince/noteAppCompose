@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
         )
 
         Thread {
-                val roomDbInitialList = vm.getNotes()
+                val roomDbInitialList = vm.getNotesNewest()
                 for(note in roomDbInitialList)
                 {
                     vm.initializeNoteList(note)

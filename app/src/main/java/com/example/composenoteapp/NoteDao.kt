@@ -26,4 +26,10 @@ interface NoteDao {
     @Query("SELECT * FROM NotesDB WHERE tag =:desiredTag")
     fun getNotesByTag(desiredTag: String): List<Note>
 
+    @Query("Select * FROM NotesDB ORDER BY CASE WHEN title = '' THEN 1 ELSE 0 END, title ASC")
+    fun getNotesAlphabetically(): List<Note>
+
+    @Query("SELECT * FROM NotesDB ORDER BY date DESC")
+    fun getNotesByDateNewest(): List<Note>
+
 }
