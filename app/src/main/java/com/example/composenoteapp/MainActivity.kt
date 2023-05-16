@@ -1,27 +1,20 @@
 package com.example.composenoteapp
 
 import android.content.ContentValues.TAG
-import android.icu.text.CaseMap.Title
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
@@ -33,7 +26,6 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,7 +50,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -70,10 +61,8 @@ import java.time.LocalDate
 lateinit var noteSavedValue: String
 lateinit var noteTitle: String
 lateinit var noteTag: String
-lateinit var viewNote: Note
 lateinit var date: String
 lateinit var currentNote: Note
-private const val TAG = "DAO"
 
 class MainActivity : ComponentActivity() {
 
@@ -112,10 +101,7 @@ class MainActivity : ComponentActivity() {
                 }
         }.start()
 
-
-
         setContent {
-            //vm.initializeNoteList(Note("First"))
             ComposeNoteAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -123,7 +109,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                    MasterControl()
-                //NoteView(note = Note("String"))
                 }
             }
         }
@@ -266,7 +251,6 @@ fun Home(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.5f))
-                    //.clickable { isExpanded = false }
             ){
                DropdownMenu(
                    expanded = isExpanded,
@@ -395,7 +379,6 @@ fun NoteItem(note: Note,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 8.dp)
-                //.background(Color.LightGray)
                 .border(1.dp, Color.Black)
             ,
             horizontalArrangement = Arrangement.SpaceBetween
