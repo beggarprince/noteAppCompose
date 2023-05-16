@@ -7,13 +7,21 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
@@ -27,6 +35,8 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -100,8 +111,7 @@ class MainActivity : ComponentActivity() {
                     vm.initializeNoteList(note)
                 }
         }.start()
-        val roomDbTags = vm.getTags()
-        for (tag in roomDbTags) Log.d(TAG, tag)
+
 
 
         setContent {
@@ -125,6 +135,8 @@ fun MasterControl(modifier: Modifier = Modifier)
 {
 
     val vm = viewModel<NoteViewModel>()
+    val roomDbTags = vm.getTags()
+    for (tag in roomDbTags) Log.d(TAG, tag)
 
     var control by rememberSaveable {
         mutableStateOf("Home")
@@ -141,15 +153,17 @@ fun MasterControl(modifier: Modifier = Modifier)
             onDeleteClick = {note: Note ->
                 vm.deleteNote(note)
             },
-            returnByTag = {
-                 val list = vm.getNotesByTags("Flayn")
+            returnByTag = { tag: String ->
+                Log.d(TAG, "TAG: " + tag)
+                val list = vm.getNotesByTags(tag)
                 vm.notes.clear()
                 for(l in list)
                 {
                     vm.notes.add(l)
                 }
                           },
-            vm.notes
+            vm.notes,
+            roomDbTags
         )
         "AddNote" -> AddNote(onContinueClicked = {
             control = "Home"
@@ -185,21 +199,30 @@ fun Home(
     onContinueClicked: () -> Unit,
     onExpandClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
-    returnByTag: () -> Unit,
-    notes : SnapshotStateList<Note>
+    returnByTag: (String) -> Unit,
+    notes : SnapshotStateList<Note>,
+    tags : List<String>
 )
 {
+    var isExpanded by remember{ mutableStateOf(false)}
 
+    var selectedTag: String =""
+    val returnHelper = {
+        Log.d(TAG,"RETURN HELPER HAS BEEN PRESSED\n")
+        isExpanded = false
+        returnByTag(selectedTag)}
 
     Surface(modifier = Modifier.fillMaxSize(),
     color = MaterialTheme.colorScheme.background) {
         //Top row
-        Row(modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black).padding(horizontal = 4.dp),
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Color.Black)
+            .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.End)
         {
-            Button(onClick = returnByTag
-                             ,
+            Button(onClick = { isExpanded = true },
             modifier = Modifier) {
                 Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
             }
@@ -226,7 +249,7 @@ fun Home(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.End,
     ) {
-        Button(onClick = {}) {
+        Button(onClick = {  }) {
             Icon(imageVector = Icons.Rounded.Info, contentDescription =null )
         }
         Button(
@@ -236,6 +259,31 @@ fun Home(
             Icon(imageVector = Icons.Rounded.Create, contentDescription = null)
         }
     }
+        if(isExpanded)
+        {
+            Log.d(TAG,"EXPANDED---------------------------")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    //.clickable { isExpanded = false }
+            ){
+               DropdownMenu(
+                   expanded = isExpanded,
+                   onDismissRequest = {isExpanded = false}
+               ) {
+                       tags.forEach { tag ->
+                           DropdownMenuItem(
+                               onClick = {returnByTag(tag)}
+                                          ,
+                               text = {Text(tag)}
+                           )
+                       }
+
+               }
+           }
+        }
+
     }
 }
 
@@ -250,7 +298,7 @@ fun AddNote(
 {
     var temp by remember { mutableStateOf("")}
     var title by remember { mutableStateOf((""))}
-    var tag by remember {mutableStateOf("Unspecified")}
+    var tag by remember {mutableStateOf("")}
 
     //TODO
     /*
@@ -280,7 +328,9 @@ fun AddNote(
                     .padding(horizontal = 8.dp)
                 )
             TextField(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 value = tag,
                 label = {Text("Optional Tag")},
                 onValueChange = {tag = it
@@ -516,13 +566,14 @@ fun BigAssNoteItemPreview()
 @Composable
 fun HomePreview()
 {
-
+val items = listOf("A", "B")
     Home(modifier = Modifier,
         {
 
         },
         {},{},{},
-        SnapshotStateList<Note>()
+        SnapshotStateList<Note>(),
+        items
     )
 }
 
