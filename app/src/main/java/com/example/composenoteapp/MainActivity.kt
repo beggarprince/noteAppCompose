@@ -32,9 +32,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +48,7 @@ import com.example.composenoteapp.ui.theme.ComposeNoteAppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -57,6 +60,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 import java.time.LocalDate
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.wrapContentHeight
 
 
 lateinit var noteSavedValue: String
@@ -95,11 +102,13 @@ class MainActivity : ComponentActivity() {
         )
 
         Thread {
+            if(vm.init == false) {
                 val roomDbInitialList = vm.getNotesNewest()
-                for(note in roomDbInitialList)
-                {
+                for (note in roomDbInitialList) {
                     vm.initializeNoteList(note)
                 }
+            }
+            vm.init = true
         }.start()
 
         setContent {
@@ -275,6 +284,7 @@ fun AddNote(
     var title by remember { mutableStateOf((""))}
     var tag by remember {mutableStateOf("")}
 
+    BackHandler(enabled = true , onCanceledClick)
 
     Surface(modifier = Modifier.fillMaxSize()
         ) {
@@ -345,14 +355,13 @@ fun NoteItem(note: Note,
         //Note is Expanded
         Surface() {
             Column() {
-            ExpandedView(note)
-                //Temp code to view note/title until
-                // mastercontrol can view it
-                Button(onClick = expandViewHelper
-
-                ){//{ buttonClicked.value=false }) {
-                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
-                }
+            ExpandedView(note,
+                shrinkText ={
+                            buttonClicked.value = false
+                },
+                openViewer = {
+                    onExpandClick(note)
+                })
             }
         }
     }
@@ -410,30 +419,42 @@ fun NoteItem(note: Note,
 }
 
 @Composable
-fun ExpandedView(note: Note) {
+fun ExpandedView(note: Note,
+shrinkText: () -> Unit,
+openViewer: () -> Unit) {
+    var clickedHelper = shrinkText
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.wrapContentHeight(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        Row(modifier = Modifier.padding(16.dp)
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = note.title,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = note.note,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = note.date,
-                color = Color.Gray
-            )
+            Column(
+                modifier = Modifier.weight(1f).clickable{shrinkText()}
+            ) {
+                Text(
+                    text = note.title,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                //    modifier = Modifier.padding(bottom = 8.dp).weight(1f)
+                )
+                Text(
+                    text = note.note,
+                //    modifier = Modifier.padding(bottom = 8.dp).weight(1f)
+                )
+                Text(
+                    text = note.date,
+                    color = Color.Gray,
+                 //   modifier = Modifier.weight(1f)
+                )
+            }
+            Button(onClick = { openViewer() },
+              //  modifier = Modifier.weight(.5f)
+            ) {
+                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+            }
         }
     }
 }
@@ -450,50 +471,99 @@ fun NoteView(
     var tempTitle by remember { mutableStateOf(note.title) }
     var tempNote by remember { mutableStateOf(note.note) }
 
+    if(!edit)BackHandler(enabled = true , onUpdateCancel)
+    else if(edit) BackHandler(enabled = true){edit = !edit}
     val updateHandler: () -> Unit = {
         onUpdateNote(note, tempNote, tempTitle)
     }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    val gradient = Brush.verticalGradient(
+        0.0f to MaterialTheme.colorScheme.primary,
+        0.5f to MaterialTheme.colorScheme.secondary,
+        1.0f to MaterialTheme.colorScheme.background
+    )
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(gradient)
                 .padding(horizontal = 16.dp)
         ) {
             if (!edit) {
                 Text(
                     text = note.title,
-                    fontSize = 30.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
                 Text(
                     text = note.note,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
+                        .padding(16.dp)
+                        .fillMaxWidth()
                 )
                 Text(
                     text = note.date,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
+                        .padding(16.dp)
+                        .fillMaxWidth()
                 )
                 Text(
                     text = "TAG: " + note.tag,
-                    color = Color.Gray
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
+                        .padding(16.dp)
+                        .fillMaxWidth()
                 )
-            } else {
+            }
+
+            else {
                 TextField(
                     value = tempTitle,
                     onValueChange = { tempTitle = it },
-                    label = { Text("Type new note") },
+                    label = { Text("Type new note title") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
+                   //     .background(Color.Gray)
+                    ,
+                    colors = TextFieldDefaults.textFieldColors(
+                        //background = MaterialTheme.colorScheme.surface,
+                        textColor = MaterialTheme.colorScheme.onSurface,
+                        disabledTextColor = Color.Gray,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray
+                    )
                 )
                 TextField(
                     value = tempNote,
                     onValueChange = { tempNote = it },
-                    label = { Text("Type new note") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Type new note text") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        //backgroundColor = MaterialTheme.colorScheme.surface,
+                        textColor = MaterialTheme.colorScheme.onSurface,
+                        disabledTextColor = Color.Gray,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray
+                    )
                 )
             }
         }
@@ -507,48 +577,52 @@ fun NoteView(
         ) {
             val buttonModifier = Modifier.padding(end = 8.dp)
             if (!edit) {
-                Button(
+                OutlinedButton(
                     onClick = onUpdateCancel,
                     modifier = buttonModifier
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = null
+                        contentDescription = "Back"
                     )
+                    Text("Back")
                 }
-                Button(
+                OutlinedButton(
                     onClick = { edit = !edit },
                     modifier = buttonModifier
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Edit,
-                        contentDescription = null
+                        imageVector = Icons.Rounded
+                            .Edit,
+                        contentDescription = "Edit"
                     )
+                    Text("Edit")
                 }
             } else {
-                Button(
+                OutlinedButton(
                     onClick = { edit = !edit },
                     modifier = buttonModifier
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = null
+                        contentDescription = "Cancel"
                     )
+                    Text("Cancel")
                 }
-                Button(
+                OutlinedButton(
                     onClick = updateHandler,
                     modifier = buttonModifier
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Check,
-                        contentDescription = null
+                        contentDescription = "Save"
                     )
+                    Text("Save")
                 }
             }
         }
     }
 }
-
 
 @Preview
 @Composable
@@ -609,5 +683,8 @@ fun AddNotePreview()
 @Preview
 @Composable
 fun ExpandViewPreview(){
-    ExpandedView(Note("NOTE text goes here", "TITLE", "FLAYN", "12/01/2022"))
+    ExpandedView(Note("NOTE text goes here", "TITLE",
+        "FLAYN", "12/01/2022"),
+        {},
+        {})
 }
