@@ -60,6 +60,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 import java.time.LocalDate
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.wrapContentHeight
 
 
 lateinit var noteSavedValue: String
@@ -280,6 +284,7 @@ fun AddNote(
     var title by remember { mutableStateOf((""))}
     var tag by remember {mutableStateOf("")}
 
+    BackHandler(enabled = true , onCanceledClick)
 
     Surface(modifier = Modifier.fillMaxSize()
         ) {
@@ -350,14 +355,13 @@ fun NoteItem(note: Note,
         //Note is Expanded
         Surface() {
             Column() {
-            ExpandedView(note)
-                //Temp code to view note/title until
-                // mastercontrol can view it
-                Button(onClick = expandViewHelper
-
-                ){//{ buttonClicked.value=false }) {
-                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
-                }
+            ExpandedView(note,
+                shrinkText ={
+                            buttonClicked.value = false
+                },
+                openViewer = {
+                    onExpandClick(note)
+                })
             }
         }
     }
@@ -415,30 +419,42 @@ fun NoteItem(note: Note,
 }
 
 @Composable
-fun ExpandedView(note: Note) {
+fun ExpandedView(note: Note,
+shrinkText: () -> Unit,
+openViewer: () -> Unit) {
+    var clickedHelper = shrinkText
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.wrapContentHeight(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        Row(modifier = Modifier.padding(16.dp)
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = note.title,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = note.note,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = note.date,
-                color = Color.Gray
-            )
+            Column(
+                modifier = Modifier.weight(1f).clickable{shrinkText()}
+            ) {
+                Text(
+                    text = note.title,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                //    modifier = Modifier.padding(bottom = 8.dp).weight(1f)
+                )
+                Text(
+                    text = note.note,
+                //    modifier = Modifier.padding(bottom = 8.dp).weight(1f)
+                )
+                Text(
+                    text = note.date,
+                    color = Color.Gray,
+                 //   modifier = Modifier.weight(1f)
+                )
+            }
+            Button(onClick = { openViewer() },
+              //  modifier = Modifier.weight(.5f)
+            ) {
+                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+            }
         }
     }
 }
@@ -455,6 +471,8 @@ fun NoteView(
     var tempTitle by remember { mutableStateOf(note.title) }
     var tempNote by remember { mutableStateOf(note.note) }
 
+    if(!edit)BackHandler(enabled = true , onUpdateCancel)
+    else if(edit) BackHandler(enabled = true){edit = !edit}
     val updateHandler: () -> Unit = {
         onUpdateNote(note, tempNote, tempTitle)
     }
@@ -490,6 +508,7 @@ fun NoteView(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
                         .padding(16.dp)
+                        .fillMaxWidth()
                 )
                 Text(
                     text = note.date,
@@ -498,6 +517,7 @@ fun NoteView(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
                         .padding(16.dp)
+                        .fillMaxWidth()
                 )
                 Text(
                     text = "TAG: " + note.tag,
@@ -506,6 +526,7 @@ fun NoteView(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
                         .padding(16.dp)
+                        .fillMaxWidth()
                 )
             }
 
@@ -662,5 +683,8 @@ fun AddNotePreview()
 @Preview
 @Composable
 fun ExpandViewPreview(){
-    ExpandedView(Note("NOTE text goes here", "TITLE", "FLAYN", "12/01/2022"))
+    ExpandedView(Note("NOTE text goes here", "TITLE",
+        "FLAYN", "12/01/2022"),
+        {},
+        {})
 }
