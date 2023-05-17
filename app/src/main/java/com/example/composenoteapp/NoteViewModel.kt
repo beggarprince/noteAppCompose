@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 class NoteViewModel(private val dao: NoteDao)
     : ViewModel(){
     var notes = mutableStateListOf<Note>()
+    var init:Boolean = false
 
     fun deleteNote(note: Note){
         notes.remove(note)
