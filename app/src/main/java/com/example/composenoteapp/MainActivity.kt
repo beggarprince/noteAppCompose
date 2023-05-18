@@ -70,6 +70,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 
@@ -683,6 +684,7 @@ fun BigAssNoteItemPreview()
 fun HomePreview()
 {
 val items = listOf("A", "B")
+
     Home(modifier = Modifier,
         {
 
