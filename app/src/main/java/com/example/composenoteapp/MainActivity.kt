@@ -70,6 +70,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 
 
@@ -157,12 +158,17 @@ fun MasterControl(modifier: Modifier = Modifier)
             },
             returnByTag = { tag: String ->
                 Log.d(TAG, "TAG: " + tag)
-                val list = vm.getNotesByTags(tag)
+                var list: List<Note>
+                if(tag == "newestOverride") { list = vm.getNotesNewest()}
+                else {  list = vm.getNotesByTags(tag) }
+
                 vm.notes.clear()
+
                 for(l in list)
                 {
                     vm.notes.add(l)
                 }
+
                           },
             vm.notes,
             roomDbTags
@@ -198,6 +204,7 @@ fun MasterControl(modifier: Modifier = Modifier)
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
@@ -216,16 +223,36 @@ fun Home(
     ) {
         Column {
             // Top row
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp)
-                    .padding(top = 8.dp), // Add top padding to prevent overlap
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.End
+                    .padding(horizontal = 4.dp, vertical = 8.dp),
             ) {
-                Button(onClick = { isExpanded = true }) {
-                    Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextField(value = "Search", onValueChange = {}, modifier = Modifier
+                        .fillMaxWidth(.8f)
+                        .shadow(4.dp))
+                    Button(onClick = { isExpanded = !isExpanded }) {
+                        Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+                    }
+                }
+
+                // Dropdown Menu
+                DropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false },
+                    modifier = Modifier.align(Alignment.TopEnd),
+                ) {
+                    DropdownMenuItem(text = { Text("Newest")}, onClick = { returnByTag("newestOverride") })
+                    tags.forEach { tag ->
+                        DropdownMenuItem(
+                            onClick = { returnByTag(tag) },
+                            text = { Text(tag) }
+                        )
+                    }
                 }
             }
 
@@ -246,9 +273,6 @@ fun Home(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End,
             ) {
-                Button(onClick = {}) {
-                    Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
-                }
                 Button(
                     onClick = onContinueClicked,
                     modifier = Modifier,
@@ -257,28 +281,11 @@ fun Home(
                 }
             }
 
-            if (isExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f))
-                ) {
-                    DropdownMenu(
-                        expanded = isExpanded,
-                        onDismissRequest = { isExpanded = false }
-                    ) {
-                        tags.forEach { tag ->
-                            DropdownMenuItem(
-                                onClick = { returnByTag(tag) },
-                                text = { Text(tag) }
-                            )
-                        }
-                    }
-                }
-            }
         }
+
     }
 }
+
 
 
 
@@ -366,11 +373,9 @@ fun NoteItem(note: Note,
         Surface(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Column() {
             ExpandedView(note,
-                shrinkText ={
-                            buttonClicked.value = false
+                shrinkText ={ buttonClicked.value = false
                 },
-                openViewer = {
-                    onExpandClick(note)
+                openViewer = { onExpandClick(note)
                 })
             }
         }
@@ -431,15 +436,20 @@ fun ExpandedView(note: Note,
 shrinkText: () -> Unit,
 openViewer: () -> Unit) {
     Surface(
-        modifier = Modifier.wrapContentHeight().border(1.dp, Color.Black),
+        modifier = Modifier
+            .wrapContentHeight()
+            .border(1.dp, Color.Black),
         color = MaterialTheme.colorScheme.background
     ) {
-        Row(modifier = Modifier.padding(16.dp)
+        Row(modifier = Modifier
+            .padding(16.dp)
             .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
-                modifier = Modifier.weight(1f).clickable{shrinkText()}
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { shrinkText() }
             ) {
                 Text(
                     text = note.title,
