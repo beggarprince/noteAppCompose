@@ -13,12 +13,16 @@ data class Note (
      var tag: String ="Unspecified",
      @PrimaryKey(autoGenerate = true)
      val id:Int? = null,
-        )
-{
+        ) {
     //No Title
-    constructor(note: String, date:String, tag: String): this(note, -1, "", date,tag)
+    constructor(note: String, date: String, tag: String) : this(note, -1, "", date, tag)
+
     //Title
-    constructor(note: String, title:String, date:String, tag: String): this(note, -1, title, date, tag)
-
-
+    constructor(note: String, title: String, date: String, tag: String) : this(
+        note,
+        -1,
+        title,
+        date,
+        tag
+    )
 }
