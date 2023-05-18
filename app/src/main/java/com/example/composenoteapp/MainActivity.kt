@@ -64,6 +64,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 
 lateinit var noteSavedValue: String
@@ -102,7 +104,7 @@ class MainActivity : ComponentActivity() {
         )
 
         Thread {
-            if(vm.init == false) {
+            if(!vm.init) {
                 val roomDbInitialList = vm.getNotesNewest()
                 for (note in roomDbInitialList) {
                     vm.initializeNoteList(note)
@@ -162,7 +164,7 @@ fun MasterControl(modifier: Modifier = Modifier)
         )
         "AddNote" -> AddNote(onContinueClicked = {
             control = "Home"
-            if(noteSavedValue != "")vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
+            if(noteSavedValue != "")vm.addNote(Note(noteSavedValue, vm.titleCreate(noteSavedValue), date, noteTag))
             noteSavedValue = ""
             noteTitle =""
         },
@@ -289,7 +291,7 @@ fun AddNote(
     Surface(modifier = Modifier.fillMaxSize()
         ) {
         Column(modifier = Modifier
-            //.background(Color.Gray)
+            .verticalScroll(rememberScrollState())
             ,
         verticalArrangement = Arrangement.Top) {
             Text(text="Add New Note")
@@ -353,7 +355,7 @@ fun NoteItem(note: Note,
     if(buttonClicked.value) {
         //----------
         //Note is Expanded
-        Surface() {
+        Surface(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Column() {
             ExpandedView(note,
                 shrinkText ={
@@ -368,9 +370,7 @@ fun NoteItem(note: Note,
     //--------------
     //Note Collapsed
     else
-        Surface(modifier = Modifier
-     //   .background(color = Color.Gray)
-    ) {
+        Surface() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -422,9 +422,8 @@ fun NoteItem(note: Note,
 fun ExpandedView(note: Note,
 shrinkText: () -> Unit,
 openViewer: () -> Unit) {
-    var clickedHelper = shrinkText
     Surface(
-        modifier = Modifier.wrapContentHeight(),
+        modifier = Modifier.wrapContentHeight().border(1.dp, Color.Black),
         color = MaterialTheme.colorScheme.background
     ) {
         Row(modifier = Modifier.padding(16.dp)

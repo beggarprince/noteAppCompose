@@ -1,5 +1,7 @@
 package com.example.composenoteapp
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -19,7 +21,6 @@ class NoteViewModel(private val dao: NoteDao)
     fun addNote(note: Note)
     {
         notes.add(note)
-
         dao.insert(note)
     }
 
@@ -68,5 +69,13 @@ class NoteViewModel(private val dao: NoteDao)
         else return list
     }
 
+    fun titleCreate(note: String): String{
+        val length = 12
+        val title = note.substring(0,length) +"..."
+        Log.d(TAG, title)
+        return title;
+    }
 }
+
+
 
