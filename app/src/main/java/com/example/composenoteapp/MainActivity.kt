@@ -484,7 +484,6 @@ fun NoteView(
     var edit by remember { mutableStateOf(false) }
     var tempTitle by remember { mutableStateOf(note.title) }
     var tempNote by remember { mutableStateOf(note.note) }
-    val bottomOffset = 8.dp
 
     if(!edit)BackHandler(enabled = true , onUpdateCancel)
     else if(edit) BackHandler(enabled = true){edit = !edit}
@@ -493,10 +492,11 @@ fun NoteView(
     }
 
     val gradient = Brush.verticalGradient(
-        0.0f to MaterialTheme.colorScheme.primary,
+        0.0f to MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
         0.5f to MaterialTheme.colorScheme.secondary,
         1.0f to MaterialTheme.colorScheme.background
     )
+    val gradientFinal = MaterialTheme.colorScheme.background.copy(alpha = .8f)
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -510,7 +510,6 @@ fun NoteView(
                 .background(gradient)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
-                //.heightIn(max = bottomOffset)
         ) {
             if (!edit) {
                 Text(
@@ -585,15 +584,17 @@ fun NoteView(
                     )
                 )
             }
-
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth(),
+                    //.padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+                    .background(gradientFinal)
+                ,
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End
             ) {
                 val buttonModifier = Modifier.padding(end = 8.dp)
+
                 if (!edit) {
                     OutlinedButton(
                         onClick = { edit = !edit },
@@ -619,6 +620,8 @@ fun NoteView(
                     }
                 }
             }
+
+
         }
 
 
