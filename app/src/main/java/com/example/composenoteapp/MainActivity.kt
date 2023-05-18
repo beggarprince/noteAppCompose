@@ -63,9 +63,16 @@ import java.time.LocalDate
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.IntrinsicSize.*
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalConfiguration
 
 
 lateinit var noteSavedValue: String
@@ -152,19 +159,27 @@ fun MasterControl(modifier: Modifier = Modifier)
             },
             returnByTag = { tag: String ->
                 Log.d(TAG, "TAG: " + tag)
-                val list = vm.getNotesByTags(tag)
+                var list: List<Note>
+                if(tag == "newestOverride") { list = vm.getNotesNewest()}
+                else {  list = vm.getNotesByTags(tag) }
+
                 vm.notes.clear()
+
                 for(l in list)
                 {
                     vm.notes.add(l)
                 }
+
                           },
             vm.notes,
             roomDbTags
         )
         "AddNote" -> AddNote(onContinueClicked = {
             control = "Home"
-            if(noteSavedValue != "")vm.addNote(Note(noteSavedValue, vm.titleCreate(noteSavedValue), date, noteTag))
+            if(noteSavedValue != ""){
+                if(noteTitle == "")vm.addNote(Note(noteSavedValue, vm.titleCreate(noteSavedValue), date, noteTag))
+                else vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
+            }
             noteSavedValue = ""
             noteTitle =""
         },
@@ -190,6 +205,7 @@ fun MasterControl(modifier: Modifier = Modifier)
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
@@ -208,16 +224,36 @@ fun Home(
     ) {
         Column {
             // Top row
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp)
-                    .padding(top = 8.dp), // Add top padding to prevent overlap
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.End
+                    .padding(horizontal = 4.dp, vertical = 8.dp),
             ) {
-                Button(onClick = { isExpanded = true }) {
-                    Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextField(value = "Search", onValueChange = {}, modifier = Modifier
+                        .fillMaxWidth(.8f)
+                        .shadow(4.dp))
+                    Button(onClick = { isExpanded = !isExpanded }) {
+                        Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+                    }
+                }
+
+                // Dropdown Menu
+                DropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false },
+                    modifier = Modifier.align(Alignment.TopEnd),
+                ) {
+                    DropdownMenuItem(text = { Text("Newest")}, onClick = { returnByTag("newestOverride") })
+                    tags.forEach { tag ->
+                        DropdownMenuItem(
+                            onClick = { returnByTag(tag) },
+                            text = { Text(tag) }
+                        )
+                    }
                 }
             }
 
@@ -238,9 +274,6 @@ fun Home(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End,
             ) {
-                Button(onClick = {}) {
-                    Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
-                }
                 Button(
                     onClick = onContinueClicked,
                     modifier = Modifier,
@@ -249,28 +282,11 @@ fun Home(
                 }
             }
 
-            if (isExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f))
-                ) {
-                    DropdownMenu(
-                        expanded = isExpanded,
-                        onDismissRequest = { isExpanded = false }
-                    ) {
-                        tags.forEach { tag ->
-                            DropdownMenuItem(
-                                onClick = { returnByTag(tag) },
-                                text = { Text(tag) }
-                            )
-                        }
-                    }
-                }
-            }
         }
+
     }
 }
+
 
 
 
@@ -358,11 +374,9 @@ fun NoteItem(note: Note,
         Surface(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Column() {
             ExpandedView(note,
-                shrinkText ={
-                            buttonClicked.value = false
+                shrinkText ={ buttonClicked.value = false
                 },
-                openViewer = {
-                    onExpandClick(note)
+                openViewer = { onExpandClick(note)
                 })
             }
         }
@@ -423,34 +437,35 @@ fun ExpandedView(note: Note,
 shrinkText: () -> Unit,
 openViewer: () -> Unit) {
     Surface(
-        modifier = Modifier.wrapContentHeight().border(1.dp, Color.Black),
+        modifier = Modifier
+            .wrapContentHeight()
+            .border(1.dp, Color.Black),
         color = MaterialTheme.colorScheme.background
     ) {
-        Row(modifier = Modifier.padding(16.dp)
+        Row(modifier = Modifier
+            .padding(16.dp)
             .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
-                modifier = Modifier.weight(1f).clickable{shrinkText()}
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { shrinkText() }
             ) {
                 Text(
                     text = note.title,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                //    modifier = Modifier.padding(bottom = 8.dp).weight(1f)
                 )
                 Text(
                     text = note.note,
-                //    modifier = Modifier.padding(bottom = 8.dp).weight(1f)
                 )
                 Text(
                     text = note.date,
                     color = Color.Gray,
-                 //   modifier = Modifier.weight(1f)
                 )
             }
             Button(onClick = { openViewer() },
-              //  modifier = Modifier.weight(.5f)
             ) {
                 Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
             }
@@ -469,6 +484,7 @@ fun NoteView(
     var edit by remember { mutableStateOf(false) }
     var tempTitle by remember { mutableStateOf(note.title) }
     var tempNote by remember { mutableStateOf(note.note) }
+    val bottomOffset = 8.dp
 
     if(!edit)BackHandler(enabled = true , onUpdateCancel)
     else if(edit) BackHandler(enabled = true){edit = !edit}
@@ -487,11 +503,14 @@ fun NoteView(
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(gradient)
                 .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
+                //.heightIn(max = bottomOffset)
         ) {
             if (!edit) {
                 Text(
@@ -499,6 +518,7 @@ fun NoteView(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+
                 )
                 Text(
                     text = note.note,
@@ -515,7 +535,7 @@ fun NoteView(
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
-                        .padding(16.dp)
+                        .padding(8.dp)
                         .fillMaxWidth()
                 )
                 Text(
@@ -524,7 +544,7 @@ fun NoteView(
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
-                        .padding(16.dp)
+                        .padding(8.dp)
                         .fillMaxWidth()
                 )
             }
@@ -537,7 +557,7 @@ fun NoteView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
-                   //     .background(Color.Gray)
+                        .heightIn(max = 500.dp)
                     ,
                     colors = TextFieldDefaults.textFieldColors(
                         //background = MaterialTheme.colorScheme.surface,
@@ -565,61 +585,43 @@ fun NoteView(
                     )
                 )
             }
-        }
 
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.End
-        ) {
-            val buttonModifier = Modifier.padding(end = 8.dp)
-            if (!edit) {
-                OutlinedButton(
-                    onClick = onUpdateCancel,
-                    modifier = buttonModifier
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                    Text("Back")
-                }
-                OutlinedButton(
-                    onClick = { edit = !edit },
-                    modifier = buttonModifier
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded
-                            .Edit,
-                        contentDescription = "Edit"
-                    )
-                    Text("Edit")
-                }
-            } else {
-                OutlinedButton(
-                    onClick = { edit = !edit },
-                    modifier = buttonModifier
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowBack,
-                        contentDescription = "Cancel"
-                    )
-                    Text("Cancel")
-                }
-                OutlinedButton(
-                    onClick = updateHandler,
-                    modifier = buttonModifier
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Check,
-                        contentDescription = "Save"
-                    )
-                    Text("Save")
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End
+            ) {
+                val buttonModifier = Modifier.padding(end = 8.dp)
+                if (!edit) {
+                    OutlinedButton(
+                        onClick = { edit = !edit },
+                        modifier = buttonModifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded
+                                .Edit,
+                            contentDescription = "Edit"
+                        )
+                        Text("Edit")
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = updateHandler,
+                        modifier = buttonModifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = "Save"
+                        )
+                        Text("Save")
+                    }
                 }
             }
         }
+
+
     }
 }
 
@@ -636,6 +638,28 @@ fun NoteViewPreview()
         {note: Note, string: String, String -> {}},{})
 }
 
+@Preview
+@Composable
+fun BigNoteViewPreview()
+{
+    NoteView(note = Note("Flayn, the enigmatic character from Fire Emblem: Three Houses, finds herself in a new and bustling environment as she steps into a McDonald's restaurant. Known for her unique personality and gentle demeanor, her choice of a Filet-O-Fish combo meal with specific side and drink selections reveals not only her preferences but also her thoughts and feelings in this unfamiliar setting.\n" +
+            "\n" +
+            "As Flayn peruses the menu, her eyes settle on the Filet-O-Fish combo with a side of golden fries and a refreshing Sprite drink. The complete meal, carefully curated with her personal tastes in mind, captures her attention. Flayn is enticed by the delicate balance of flavors and textures that this meal promises. The succulent fish patty nestled in a soft bun, accompanied by the crispiness of the fries and the effervescence of the Sprite, presents a harmonious and satisfying combination.\n" +
+            "\n" +
+            "Flayn's choice of Sprite as her drink is a testament to her fondness for refreshing and invigorating flavors. The effervescent bubbles dance on her tongue, leaving behind a delightful sensation. As she takes each sip, she appreciates the subtle sweetness and the thirst-quenching qualities of the carbonated beverage. The Sprite complements the flavors of the meal, cleansing her palate between each bite and enhancing her overall dining experience.\n" +
+            "\n" +
+            "Alongside her Filet-O-Fish, Flayn indulges in a side of golden fries. The crispy exterior gives way to the fluffy potato inside, providing a satisfying crunch with each bite. As she enjoys the fries, Flayn admires the contrast of textures and the comforting familiarity of this classic side dish. The fries evoke a sense of nostalgia, reminding her of simpler times and joyful memories shared with friends.\n" +
+            "\n" +
+            "As Flayn begins her meal, she takes a moment to appreciate the complete experience. The first bite of the Filet-O-Fish delights her senses, as the crispy exterior gives way to the tender fish, complemented by the tangy tartar sauce. She relishes the satisfying crunch of the fries, each one a perfect accompaniment to the main dish. The refreshing Sprite quenches her thirst, providing a pleasant contrast to the rich flavors of the meal. Flayn savors each morsel, fully immersing herself in the present moment.\n" +
+            "\n" +
+            "While enjoying her Filet-O-Fish combo, Flayn reflects on the overall experience. The vibrant atmosphere of the McDonald's restaurant, bustling with the energy of fellow patrons, contrasts with her serene monastery life. Yet, she embraces the lively ambiance, appreciating the diversity and liveliness of the people around her. The laughter and conversations create a sense of unity and connection, reminding her of the joy that can be found in shared experiences.\n" +
+            "\n" +
+            "Flayn's dining experience at McDonald's not only satisfies her hunger but also provides her with a glimpse into a world beyond her monastery walls. The familiar comfort of the Filet-O-Fish, accompanied by the joyous crunch of the fries and the refreshing effervescence of the Sprite, offers her a sense of familiarity amidst the new surroundings. It becomes a symbol of the diverse experiences and pleasures that exist beyond her tranquil sanctuary.\n" +
+            "\n" +
+            "In conclusion, Flayn's choice to order the Filet-O-Fish combo at McDonald's exemplifies her affinity for the sea and her desire for balance and harmony. The specific selection of Sprite as her drink showcases her preference for refreshing flavors, while the golden fries provide a satisfying and nostalgic side. As she indulges in each element of the combo, Flayn embraces the vibrant atmosphere and finds joy in the"
+        , "Flayn's Mcdonald's Order","5/13/2023" ,"Unspecified"),
+        {note: Note, string: String, String -> {}},{})
+}
 
 @Preview
 @Composable
@@ -660,6 +684,7 @@ fun BigAssNoteItemPreview()
 fun HomePreview()
 {
 val items = listOf("A", "B")
+
     Home(modifier = Modifier,
         {
 
@@ -682,6 +707,7 @@ fun AddNotePreview()
 @Preview
 @Composable
 fun ExpandViewPreview(){
+
     ExpandedView(Note("NOTE text goes here", "TITLE",
         "FLAYN", "12/01/2022"),
         {},
