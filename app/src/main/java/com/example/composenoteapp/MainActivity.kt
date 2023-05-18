@@ -70,6 +70,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
@@ -162,7 +164,6 @@ fun MasterControl(modifier: Modifier = Modifier)
                 var list: List<Note>
                 if(tag == "newestOverride") { list = vm.getNotesNewest()}
                 else {  list = vm.getNotesByTags(tag) }
-
                 vm.notes.clear()
 
                 for(l in list)
@@ -171,6 +172,16 @@ fun MasterControl(modifier: Modifier = Modifier)
                 }
 
                           },
+            textSearch ={
+                        text: String ->
+                Log.d(TAG,"LAMBDA IS RUNNING")
+                val list = vm.search(text)
+                vm.notes.clear()
+                for(l in list)
+                {
+                    vm.notes.add(l)
+                }
+            },
             vm.notes,
             roomDbTags
         )
@@ -213,10 +224,12 @@ fun Home(
     onExpandClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
     returnByTag: (String) -> Unit,
+    textSearch: (String) -> Unit,
     notes: SnapshotStateList<Note>,
     tags: List<String>
 ) {
     var isExpanded by remember { mutableStateOf(false) }
+    var textSearchValue by remember { mutableStateOf("")}
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -233,11 +246,28 @@ fun Home(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextField(value = "Search", onValueChange = {}, modifier = Modifier
-                        .fillMaxWidth(.8f)
-                        .shadow(4.dp))
+                    TextField(
+                        value = textSearchValue,
+                        label = {Text("Search") },
+                        onValueChange = {textSearchValue = it },
+                        modifier = Modifier
+                            .fillMaxWidth(.8f)
+                            .shadow(4.dp),
+                        trailingIcon = {
+                            IconButton(onClick = { Log.d(TAG,"SEARCH BUTTON CLICKED")
+                                textSearch(textSearchValue)},)
+                            {
+                                Icon(imageVector = Icons.Rounded.Search,
+                                    contentDescription =null)
+                            }
+                        },
+
+                    )
+
+                    //Menu Dropdown button
                     Button(onClick = { isExpanded = !isExpanded }) {
-                        Icon(imageVector = Icons.Rounded.Menu, contentDescription = null)
+                        Icon(imageVector = Icons.Rounded.Menu,
+                            contentDescription = null)
                     }
                 }
 
@@ -692,7 +722,7 @@ val items = listOf("A", "B")
         {
 
         },
-        {},{},{},
+        {},{},{},{},
         SnapshotStateList<Note>(),
         items
     )

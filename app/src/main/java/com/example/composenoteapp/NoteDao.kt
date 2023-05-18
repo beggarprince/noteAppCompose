@@ -32,4 +32,6 @@ interface NoteDao {
     @Query("SELECT * FROM NotesDB ORDER BY date DESC")
     fun getNotesByDateNewest(): List<Note>
 
+    @Query("SELECT * FROM NotesDB WHERE note LIKE '%' || :searchText || '%' OR  title LIKE '%' || :searchText || '%' ")
+    fun searchText(searchText : String): List<Note>
 }

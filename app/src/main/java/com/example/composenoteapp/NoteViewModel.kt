@@ -75,6 +75,12 @@ class NoteViewModel(private val dao: NoteDao)
         Log.d(TAG, title)
         return title;
     }
+
+    fun search(text: String): List<Note>{
+        val list = dao.searchText(text)
+        return if(list.isEmpty()) emptyList()
+        else return list
+    }
 }
 
 
