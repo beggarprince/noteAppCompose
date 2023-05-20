@@ -70,6 +70,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.mutableStateListOf
@@ -209,7 +210,10 @@ fun MasterControl(modifier: Modifier = Modifier)
                 vm.updateNote(note)
                 control = "Home"
                            },
-            onUpdateCancel = { control = "Home" }
+            onUpdateCancel = { control = "Home" },
+                onDeleteClick = {note: Note ->
+                    vm.deleteNote(note)
+                }
             )
         }
     }
@@ -446,18 +450,7 @@ fun NoteItem(note: Note,
                     style = TextStyle(fontSize = 25.sp)
                 )
             }
-
-            //Delete Note
-            Button(
-                modifier = Modifier
-                    .weight((0.25f))
-                ,
-                onClick = deleteHandler
-            ) {
-                Icon(imageVector = Icons.Rounded.Delete, contentDescription = null,
-                    modifier = Modifier.weight(1f)
-             )
-            }
+            Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null)
         }
     }
 }
@@ -509,7 +502,8 @@ openViewer: () -> Unit) {
 fun NoteView(
     note: Note,
     onUpdateNote: (Note, String, String) -> Unit,
-    onUpdateCancel: () -> Unit
+    onUpdateCancel: () -> Unit,
+    onDeleteClick: (Note) -> Unit
 ) {
     var edit by remember { mutableStateOf(false) }
     var tempTitle by remember { mutableStateOf(note.title) }
@@ -627,6 +621,20 @@ fun NoteView(
 
                 if (!edit) {
                     OutlinedButton(
+                        onClick = {
+                                    onDeleteClick(note)
+                                    onUpdateCancel()
+                                  },
+                        modifier = buttonModifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded
+                                .Delete,
+                            contentDescription = "Delete"
+                        )
+                        Text("Delete")
+                    }
+                    OutlinedButton(
                         onClick = { edit = !edit },
                         modifier = buttonModifier
                     ) {
@@ -648,6 +656,17 @@ fun NoteView(
                         )
                         Text("Save")
                     }
+                    OutlinedButton(
+                        onClick = { edit = !edit },
+                        modifier = buttonModifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded
+                                .Edit,
+                            contentDescription = "Edit"
+                        )
+                        Text("Edit")
+                    }
                 }
             }
 
@@ -668,7 +687,7 @@ fun NoteViewPreview()
             "\n" +
             "Of course, this is just speculation based on Flayn's character traits, and she may have different preferences or dietary restrictions that we are not aware of.",
          "Flayn's Mcdonald's Order","5/13/2023" ,"Unspecified"),
-        {note: Note, string: String, String -> {}},{})
+        {note: Note, string: String, String -> {}},{}, {})
 }
 
 @Preview
@@ -691,7 +710,7 @@ fun BigNoteViewPreview()
             "\n" +
             "In conclusion, Flayn's choice to order the Filet-O-Fish combo at McDonald's exemplifies her affinity for the sea and her desire for balance and harmony. The specific selection of Sprite as her drink showcases her preference for refreshing flavors, while the golden fries provide a satisfying and nostalgic side. As she indulges in each element of the combo, Flayn embraces the vibrant atmosphere and finds joy in the"
         , "Flayn's Mcdonald's Order","5/13/2023" ,"Unspecified"),
-        {note: Note, string: String, String -> {}},{})
+        {note: Note, string: String, String -> {}},{},{})
 }
 
 @Preview
