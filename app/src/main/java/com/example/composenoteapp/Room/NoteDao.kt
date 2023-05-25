@@ -1,10 +1,11 @@
-package com.example.composenoteapp
+package com.example.composenoteapp.Room
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.example.composenoteapp.note.Note
 
 @Dao
 interface NoteDao {
@@ -12,7 +13,7 @@ interface NoteDao {
     fun insert(note: Note)
 
     @Update
-    fun update(note:Note)
+    fun update(note: Note)
 
     @Delete
     fun delete(note: Note)
