@@ -1,4 +1,4 @@
-package com.example.composenoteapp
+package com.example.composenoteapp.note
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.room.Entity
