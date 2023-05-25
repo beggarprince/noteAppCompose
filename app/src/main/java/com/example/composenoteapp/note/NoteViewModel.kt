@@ -1,14 +1,15 @@
-package com.example.composenoteapp
+package com.example.composenoteapp.note
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.composenoteapp.Room.NoteDao
 
 class NoteViewModel(private val dao: NoteDao)
     : ViewModel(){
     var notes = mutableStateListOf<Note>()
+    var init:Boolean = false
 
     fun deleteNote(note: Note){
         notes.remove(note)
@@ -18,7 +19,6 @@ class NoteViewModel(private val dao: NoteDao)
     fun addNote(note: Note)
     {
         notes.add(note)
-
         dao.insert(note)
     }
 
@@ -67,5 +67,19 @@ class NoteViewModel(private val dao: NoteDao)
         else return list
     }
 
+    fun titleCreate(note: String): String{
+        val length = 12
+        val title = note.substring(0,length) +"..."
+        Log.d(TAG, title)
+        return title;
+    }
+
+    fun search(text: String): List<Note>{
+        val list = dao.searchText(text)
+        return if(list.isEmpty()) emptyList()
+        else return list
+    }
 }
+
+
 
