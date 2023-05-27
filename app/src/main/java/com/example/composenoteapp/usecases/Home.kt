@@ -34,6 +34,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composenoteapp.note.Note
 import com.example.composenoteapp.note.NoteItem
@@ -58,7 +59,7 @@ fun Home(
         color = MaterialTheme.colorScheme.background
     ) {
         Column {
-            // Top row
+            // Top row, Search and tag button
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -87,7 +88,9 @@ fun Home(
                         )
 
                     //Menu Dropdown button
-                    Button(onClick = { isExpanded = !isExpanded }) {
+                    Button(onClick = {
+                        isExpanded = !isExpanded
+                    }) {
                         Icon(imageVector = Icons.Rounded.Menu,
                             contentDescription = null)
                     }
@@ -97,7 +100,8 @@ fun Home(
                 DropdownMenu(
                     expanded = isExpanded,
                     onDismissRequest = { isExpanded = false },
-                    modifier = Modifier.align(Alignment.TopEnd),
+                    modifier = Modifier
+                    ,
                 ) {
                     DropdownMenuItem(text = { Text("Alphabetical") }, onClick = { returnByTag("alphaOverride") })
                     DropdownMenuItem(text = { Text("Newest") }, onClick = { returnByTag("newestOverride") })
@@ -140,4 +144,19 @@ fun Home(
     }
 }
 
+@Preview
+@Composable
+fun HomePreview()
+{
+    val items = listOf("A", "B")
+
+    Home(modifier = Modifier,
+        {
+
+        },
+        {},{},{},{},
+        SnapshotStateList<Note>(),
+        items
+    )
+}
 

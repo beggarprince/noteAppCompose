@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-//
+
 @Composable
 fun MasterControl(modifier: Modifier = Modifier)
 {
@@ -169,21 +169,5 @@ fun MasterControl(modifier: Modifier = Modifier)
     }
 }
 
-
-@Preview
-@Composable
-fun HomePreview()
-{
-val items = listOf("A", "B")
-
-    Home(modifier = Modifier,
-        {
-
-        },
-        {},{},{},{},
-        SnapshotStateList<Note>(),
-        items
-    )
-}
 
 

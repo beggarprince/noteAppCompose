@@ -1,6 +1,7 @@
 package com.example.composenoteapp
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,9 +13,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -25,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -42,10 +48,21 @@ fun AddNote(
 
     BackHandler(enabled = true , onCanceledClick)
 
-    Surface(modifier = Modifier.fillMaxSize()
+    val gradient = Brush.verticalGradient(
+        0.0f to MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
+        0.5f to MaterialTheme.colorScheme.secondary,
+        1.0f to MaterialTheme.colorScheme.background
+    )
+    val gradientFinal = MaterialTheme.colorScheme.background.copy(alpha = .8f)
+
+    Surface(modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
+
     ) {
         Column(modifier = Modifier
             .verticalScroll(rememberScrollState())
+            .background(gradient)
             ,
             verticalArrangement = Arrangement.Top) {
             Text(text="Add New Note")
@@ -74,15 +91,23 @@ fun AddNote(
             )
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp).background(gradientFinal),
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End) {
-                Button(onClick = onCanceledClick,
+                OutlinedButton(onClick = onCanceledClick,
                     modifier = Modifier
                 ) {
                     Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null, modifier = Modifier)
                 }
-                Button(onClick = onContinueClicked,
+//                OutlinedButton(onClick = {
+//                                         //ADD ACCESS TO PHONE GALLERY
+//                },
+//                modifier = Modifier){
+//                    Icon(imageVector = Icons.Rounded.Face, contentDescription = null,
+//                    modifier = Modifier)
+//                }
+
+                OutlinedButton(onClick = onContinueClicked,
                     modifier = Modifier,
                 ) {
                     Icon(
