@@ -28,22 +28,20 @@ import com.example.composenoteapp.note.Note
 import com.example.composenoteapp.note.NoteViewModel
 
 //Can be replaced with lambda
-lateinit var noteSavedValue: String
-lateinit var noteTitle: String
+ var noteSavedValue: String =""
+ var noteTitle: String =""
 lateinit var noteTag: String
 lateinit var date: String
-lateinit var currentNote: Note
+
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        noteTitle =""
-        noteSavedValue =""
         val currentDate = LocalDate.now()
         date = currentDate.toString()
-        currentNote = Note("a", date, "")
+        var currentNote = Note("a", date, "")
 
         val db = Room.databaseBuilder(
             applicationContext,
@@ -70,8 +68,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var list = vm.getNotesNewest()
-                    for(l in list) vm.initializeNoteList(l)
+
+                    if(vm.init == false){
+                        val listInit = vm.getNotesNewest()
+                        for(l in listInit) vm.initializeNoteList(l)
+                    }
+
                     val roomDbTags = vm.getTags()
                     var control by rememberSaveable {
                         mutableStateOf("Home")
@@ -88,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                 vm.deleteNote(note)
                             },
                             returnByTag = { tag: String ->
-                                //val list: List<Note>
+                                var list = emptyList<Note>()
                                 if(tag == "newestOverride")  list = vm.getNotesNewest()
                                 else if(tag =="alphaOverride")list = vm.getNotesAlphabetically()
                                 else list = vm.getNotesByTags(tag)
