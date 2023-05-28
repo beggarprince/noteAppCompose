@@ -74,98 +74,89 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ComposeNoteAppTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                   MasterControl()
+                    val roomDbTags = vm.getTags()
+
+                    var control by rememberSaveable {
+                        mutableStateOf("Home")
+                    }
+                    when (control) {
+                        "Home" -> Home(
+                        //    modifier,
+                            onContinueClicked = {control = "AddNote"},
+                            onExpandClick = {
+                                    note: Note ->
+                                currentNote = note
+                                control = "ViewNote"
+                            },
+                            onDeleteClick = {note: Note ->
+                                vm.deleteNote(note)
+                            },
+                            returnByTag = { tag: String ->
+                                Log.d(TAG, "TAG: " + tag)
+                                var list: List<Note>
+                                if(tag == "newestOverride") { list = vm.getNotesNewest()}
+                                else if(tag =="alphaOverride"){list = vm.getNotesAlphabetically()}
+                                else {  list = vm.getNotesByTags(tag) }
+
+                                vm.notes.clear()
+                                for(l in list)
+                                {
+                                    vm.notes.add(l)
+                                }
+
+                            },
+                            textSearch ={
+                                    text: String ->
+                                Log.d(TAG,"LAMBDA IS RUNNING")
+                                val list = vm.search(text)
+                                vm.notes.clear()
+                                for(l in list)
+                                {
+                                    vm.notes.add(l)
+                                }
+                            },
+                            vm.notes,
+                            roomDbTags
+                        )
+                        "AddNote" -> AddNote(onContinueClicked = {
+                            control = "Home"
+                            if(noteSavedValue != ""){
+                                if(noteTitle == "")vm.addNote(Note(noteSavedValue, vm.titleCreate(noteSavedValue), date, noteTag))
+                                else vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
+                            }
+                            noteSavedValue = ""
+                            noteTitle =""
+                        },
+                            onCanceledClick ={
+                                control = "Home"
+                            }
+                        )
+                        "ViewNote" -> {
+                            NoteView(note = currentNote,
+                                onUpdateNote = { note: Note,
+                                                 noteText: String,
+                                                 title: String->
+                                    note.title = title
+                                    note.note = noteText
+                                    note.date = date
+                                    vm.updateNote(note)
+                                    control = "Home"
+                                },
+                                onUpdateCancel = { control = "Home" },
+                                onDeleteClick = {note: Note ->
+                                    vm.deleteNote(note)
+                                }
+                            )
+                        }
+                    }
+
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun MasterControl(modifier: Modifier = Modifier)
-{
-
-    val vm = viewModel<NoteViewModel>()
-    val roomDbTags = vm.getTags()
-    for (tag in roomDbTags) Log.d(TAG, tag)
-
-    var control by rememberSaveable {
-        mutableStateOf("Home")
-    }
-    when (control) {
-        "Home" -> Home(
-            modifier,
-            onContinueClicked = {control = "AddNote"},
-            onExpandClick = {
-                note: Note ->
-                currentNote = note
-                control = "ViewNote"
-            },
-            onDeleteClick = {note: Note ->
-                vm.deleteNote(note)
-            },
-            returnByTag = { tag: String ->
-                Log.d(TAG, "TAG: " + tag)
-                var list: List<Note>
-                if(tag == "newestOverride") { list = vm.getNotesNewest()}
-                else if(tag =="alphaOverride"){list = vm.getNotesAlphabetically()}
-                else {  list = vm.getNotesByTags(tag) }
-
-                vm.notes.clear()
-                for(l in list)
-                {
-                    vm.notes.add(l)
-                }
-
-                          },
-            textSearch ={
-                        text: String ->
-                Log.d(TAG,"LAMBDA IS RUNNING")
-                val list = vm.search(text)
-                vm.notes.clear()
-                for(l in list)
-                {
-                    vm.notes.add(l)
-                }
-            },
-            vm.notes,
-            roomDbTags
-        )
-        "AddNote" -> AddNote(onContinueClicked = {
-            control = "Home"
-            if(noteSavedValue != ""){
-                if(noteTitle == "")vm.addNote(Note(noteSavedValue, vm.titleCreate(noteSavedValue), date, noteTag))
-                else vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
-            }
-            noteSavedValue = ""
-            noteTitle =""
-        },
-            onCanceledClick ={
-                control = "Home"
-            }
-        )
-        "ViewNote" -> {
-            NoteView(note = currentNote,
-            onUpdateNote = { note: Note,
-                             noteText: String,
-                             title: String->
-                note.title = title
-                note.note = noteText
-                note.date = date
-                vm.updateNote(note)
-                control = "Home"
-                           },
-            onUpdateCancel = { control = "Home" },
-                onDeleteClick = {note: Note ->
-                    vm.deleteNote(note)
-                }
-            )
-        }
+        }//setContent
     }
 }
 

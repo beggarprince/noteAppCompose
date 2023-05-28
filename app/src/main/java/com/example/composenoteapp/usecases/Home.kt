@@ -42,7 +42,7 @@ import com.example.composenoteapp.note.NoteItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
-    modifier: Modifier = Modifier,
+  //  modifier: Modifier = Modifier,
     onContinueClicked: () -> Unit,
     onExpandClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
@@ -55,7 +55,8 @@ fun Home(
     var textSearchValue by remember { mutableStateOf("") }
 
     Surface(
-        modifier = modifier.fillMaxSize(),
+
+        modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column {
@@ -150,7 +151,8 @@ fun HomePreview()
 {
     val items = listOf("A", "B")
 
-    Home(modifier = Modifier,
+    Home(
+        //modifier = Modifier,
         {
 
         },
