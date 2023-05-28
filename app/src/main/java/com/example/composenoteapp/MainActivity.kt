@@ -48,9 +48,11 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(
             applicationContext,
             NoteDatabase::class.java, "my-db"
-        ).allowMainThreadQueries().build()
-        val dao = db.noteDao()
+        )
+            .allowMainThreadQueries()
+            .build()
 
+        val dao = db.noteDao()
         val vm by viewModels<NoteViewModel>(
             factoryProducer = {
                 object : ViewModelProvider.Factory{
@@ -62,30 +64,20 @@ class MainActivity : ComponentActivity() {
             }
         )
 
-        Thread {
-            if(!vm.init) {
-                val roomDbInitialList = vm.getNotesNewest()
-                for (note in roomDbInitialList) {
-                    vm.initializeNoteList(note)
-                }
-            }
-            vm.init = true
-        }.start()
-
         setContent {
             ComposeNoteAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    var list = vm.getNotesNewest()
+                    for(l in list) vm.initializeNoteList(l)
                     val roomDbTags = vm.getTags()
-
                     var control by rememberSaveable {
                         mutableStateOf("Home")
                     }
                     when (control) {
                         "Home" -> Home(
-                        //    modifier,
                             onContinueClicked = {control = "AddNote"},
                             onExpandClick = {
                                     note: Note ->
@@ -96,22 +88,17 @@ class MainActivity : ComponentActivity() {
                                 vm.deleteNote(note)
                             },
                             returnByTag = { tag: String ->
-                                Log.d(TAG, "TAG: " + tag)
-                                var list: List<Note>
-                                if(tag == "newestOverride") { list = vm.getNotesNewest()}
-                                else if(tag =="alphaOverride"){list = vm.getNotesAlphabetically()}
-                                else {  list = vm.getNotesByTags(tag) }
+                                //val list: List<Note>
+                                if(tag == "newestOverride")  list = vm.getNotesNewest()
+                                else if(tag =="alphaOverride")list = vm.getNotesAlphabetically()
+                                else list = vm.getNotesByTags(tag)
 
                                 vm.notes.clear()
-                                for(l in list)
-                                {
-                                    vm.notes.add(l)
-                                }
+                                for(l in list) vm.notes.add(l)
 
                             },
                             textSearch ={
                                     text: String ->
-                                Log.d(TAG,"LAMBDA IS RUNNING")
                                 val list = vm.search(text)
                                 vm.notes.clear()
                                 for(l in list)
@@ -158,6 +145,7 @@ class MainActivity : ComponentActivity() {
             }
         }//setContent
     }
+
 }
 
 

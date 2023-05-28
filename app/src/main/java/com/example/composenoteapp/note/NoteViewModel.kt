@@ -9,8 +9,6 @@ import com.example.composenoteapp.Room.NoteDao
 class NoteViewModel(private val dao: NoteDao)
     : ViewModel(){
     var notes = mutableStateListOf<Note>()
-    var init:Boolean = false
-
     fun deleteNote(note: Note){
         notes.remove(note)
         dao.delete(note)
@@ -25,15 +23,6 @@ class NoteViewModel(private val dao: NoteDao)
     fun initializeNoteList(note : Note)
     {
         notes.add(note)
-    }
-
-    fun getNotes() :List<Note>
-    {
-        val list = dao.retrieveAllNotes()
-
-        return if (list.isEmpty()) emptyList()
-        else
-            return list
     }
 
     fun getNotesAlphabetically(): List<Note>
