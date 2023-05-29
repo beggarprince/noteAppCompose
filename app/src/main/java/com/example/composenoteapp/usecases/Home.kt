@@ -42,7 +42,6 @@ import com.example.composenoteapp.note.NoteItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
-  //  modifier: Modifier = Modifier,
     onContinueClicked: () -> Unit,
     onExpandClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
@@ -68,14 +67,22 @@ fun Home(
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    //Menu Dropdown button
+                    Button(onClick = { isExpanded = !isExpanded },
+                        //modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = Icons.Rounded.Menu,
+                            contentDescription = null)
+                    }
                     TextField(
                         value = textSearchValue,
                         label = { Text("Search") },
                         onValueChange = {textSearchValue = it },
                         modifier = Modifier
-                            .fillMaxWidth(.8f)
+                            .fillMaxWidth()
                             .shadow(4.dp),
                         trailingIcon = {
                             IconButton(onClick = { Log.d(ContentValues.TAG,"SEARCH BUTTON CLICKED")
@@ -87,14 +94,6 @@ fun Home(
                         },
 
                         )
-
-                    //Menu Dropdown button
-                    Button(onClick = {
-                        isExpanded = !isExpanded
-                    }) {
-                        Icon(imageVector = Icons.Rounded.Menu,
-                            contentDescription = null)
-                    }
                 }
 
                 // Dropdown Menu
