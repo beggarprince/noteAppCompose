@@ -24,21 +24,23 @@ import androidx.compose.ui.unit.sp
 import com.example.composenoteapp.ExpandedView
 
 @Composable
-fun NoteItem(note: Note,
-             onExpandClick: (Note) -> Unit,
-             onDeleteClick: (Note) -> Unit
-)
-{
+fun NoteItem(
+    note: Note,
+    onExpandClick: (Note) -> Unit,
+    onDeleteClick: (Note) -> Unit
+) {
     val buttonClicked = remember { mutableStateOf(false) }
-    if(buttonClicked.value) {
+    if (buttonClicked.value) {
         //----------
         //Note is Expanded
         Surface(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Column() {
                 ExpandedView(note,
-                    shrinkText ={ buttonClicked.value = false
+                    shrinkText = {
+                        buttonClicked.value = false
                     },
-                    openViewer = { onExpandClick(note)
+                    openViewer = {
+                        onExpandClick(note)
                     })
             }
         }
@@ -51,12 +53,11 @@ fun NoteItem(note: Note,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp, horizontal = 8.dp)
-                    .border(1.dp, Color.Black)
-                ,
+                    .border(1.dp, Color.Black),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 //Does NOT have a title
-                if(note.title == ""){
+                if (note.title == "") {
                     ClickableText(
                         text = AnnotatedString(note.note),
                         modifier = Modifier.weight(1f),
@@ -67,8 +68,7 @@ fun NoteItem(note: Note,
                     )
                 }
                 //DOES have a title
-                else
-                {
+                else {
                     ClickableText(
                         text = AnnotatedString(note.title),
                         modifier = Modifier.weight(1f),
@@ -85,19 +85,18 @@ fun NoteItem(note: Note,
 
 @Preview
 @Composable
-fun NoteItemPreview()
-{
-    NoteItem(note = Note("This is a note","Title",""), {}, {})
+fun NoteItemPreview() {
+    NoteItem(note = Note("This is a note", "Title", ""), {}, {})
 }
 
 @Preview
 @Composable
-fun BigAssNoteItemPreview()
-{
+fun BigAssNoteItemPreview() {
     NoteItem(
-        Note("This is a note with a shit ton of text on it." +
-            "Ideally the app looks just as beautiful as when the note is a entire paragraph" +
-            "ladjlasfjeijalejfl adl akdjfaifakdjflakdjf aei jlkadfjaoie jkadfjlaiejfklsjfaljdfjla" +
-            "lkajdfla jdlksjfla jfsdjfk jsdlsjfdkajfsifdjskdfjaldij kdlsdjfslidjfkasld;fjs laifjdklajdflsa jsildfj")
-        ,{}, {})
+        Note(
+            "This is a note with a shit ton of text on it." +
+                    "Ideally the app looks just as beautiful as when the note is a entire paragraph" +
+                    "ladjlasfjeijalejfl adl akdjfaifakdjflakdjf aei jlkadfjaoie jkadfjlaiejfklsjfaljdfjla" +
+                    "lkajdfla jdlksjfla jfsdjfk jsdlsjfdkajfsifdjskdfjaldij kdlsdjfslidjfkasld;fjs laifjdklajdflsa jsildfj"
+        ), {}, {})
 }

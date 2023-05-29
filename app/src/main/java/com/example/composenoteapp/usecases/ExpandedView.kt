@@ -25,18 +25,21 @@ import androidx.compose.ui.unit.sp
 import com.example.composenoteapp.note.Note
 
 @Composable
-fun ExpandedView(note: Note,
-                 shrinkText: () -> Unit,
-                 openViewer: () -> Unit) {
+fun ExpandedView(
+    note: Note,
+    shrinkText: () -> Unit,
+    openViewer: () -> Unit
+) {
     Surface(
         modifier = Modifier
             .wrapContentHeight()
             .border(1.dp, Color.Black),
         color = MaterialTheme.colorScheme.background
     ) {
-        Row(modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(
@@ -57,7 +60,8 @@ fun ExpandedView(note: Note,
                     color = Color.Gray,
                 )
             }
-            Button(onClick = { openViewer() },
+            Button(
+                onClick = { openViewer() },
             ) {
                 Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
             }
@@ -68,11 +72,13 @@ fun ExpandedView(note: Note,
 
 @Preview
 @Composable
-fun ExpandViewPreview(){
+fun ExpandViewPreview() {
 
     ExpandedView(
-        Note("NOTE text goes here", "TITLE",
-        "12/12/2001", "TAG HERE"),
+        Note(
+            "NOTE text goes here", "TITLE",
+            "12/12/2001", "TAG HERE"
+        ),
         {},
         {})
 }

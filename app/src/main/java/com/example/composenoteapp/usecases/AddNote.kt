@@ -40,13 +40,12 @@ fun AddNote(
     modifier: Modifier = Modifier,
     onContinueClicked: () -> Unit,
     onCanceledClick: () -> Unit
-)
-{
+) {
     var temp by remember { mutableStateOf("") }
     var title by remember { mutableStateOf(("")) }
     var tag by remember { mutableStateOf("") }
 
-    BackHandler(enabled = true , onCanceledClick)
+    BackHandler(enabled = true, onCanceledClick)
 
     val gradient = Brush.verticalGradient(
         0.0f to MaterialTheme.colorScheme.primary.copy(alpha = 0.95f),
@@ -55,26 +54,32 @@ fun AddNote(
     )
     val gradientFinal = MaterialTheme.colorScheme.background.copy(alpha = .8f)
 
-    Surface(modifier = Modifier.fillMaxSize(),
+    Surface(
+        modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground
 
     ) {
-        Column(modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .background(gradient)
-            ,
-            verticalArrangement = Arrangement.Top) {
-            Text(text="Add New Note")
-            TextField(value = title, onValueChange = { title = it
-                noteTitle = it},
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .background(gradient),
+            verticalArrangement = Arrangement.Top
+        ) {
+            Text(text = "Add New Note")
+            TextField(
+                value = title, onValueChange = {
+                    title = it
+                    noteTitle = it
+                },
                 label = { Text("Enter Title") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
             )
-            TextField(value = temp,
-                onValueChange = {temp = it; noteSavedValue =it},
+            TextField(
+                value = temp,
+                onValueChange = { temp = it; noteSavedValue = it },
                 label = { Text("Type new note") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,18 +91,28 @@ fun AddNote(
                     .padding(horizontal = 8.dp),
                 value = tag,
                 label = { Text("Optional Tag") },
-                onValueChange = {tag = it
-                    noteTag = it}
+                onValueChange = {
+                    tag = it
+                    noteTag = it
+                }
             )
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp).background(gradientFinal),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .background(gradientFinal),
                 verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.End) {
-                OutlinedButton(onClick = onCanceledClick,
+                horizontalArrangement = Arrangement.End
+            ) {
+                OutlinedButton(
+                    onClick = onCanceledClick,
                     modifier = Modifier
                 ) {
-                    Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null, modifier = Modifier)
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier
+                    )
                 }
 //                OutlinedButton(onClick = {
 //                                         //ADD ACCESS TO PHONE GALLERY
@@ -107,7 +122,8 @@ fun AddNote(
 //                    modifier = Modifier)
 //                }
 
-                OutlinedButton(onClick = onContinueClicked,
+                OutlinedButton(
+                    onClick = onContinueClicked,
                     modifier = Modifier,
                 ) {
                     Icon(
@@ -124,9 +140,8 @@ fun AddNote(
 
 @Preview
 @Composable
-fun AddNotePreview()
-{
+fun AddNotePreview() {
 
     AddNote(modifier = Modifier,
-        {},{})
+        {}, {})
 }

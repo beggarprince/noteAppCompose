@@ -28,8 +28,8 @@ import com.example.composenoteapp.note.Note
 import com.example.composenoteapp.note.NoteViewModel
 
 //Can be replaced with lambda
- var noteSavedValue: String =""
- var noteTitle: String =""
+var noteSavedValue: String = ""
+var noteTitle: String = ""
 lateinit var noteTag: String
 lateinit var date: String
 
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
         val dao = db.noteDao()
         val vm by viewModels<NoteViewModel>(
             factoryProducer = {
-                object : ViewModelProvider.Factory{
+                object : ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                         Log.d(TAG, "Creating ViewModel of type NoteViewModel")
                         return NoteViewModel(dao) as T
@@ -70,9 +70,9 @@ class MainActivity : ComponentActivity() {
                 ) {
 
 
-                        val listInit = vm.getNotesNewest()
-                        vm.notes.clear()
-                        for(l in listInit) vm.initializeNoteList(l)
+                    val listInit = vm.getNotesNewest()
+                    vm.notes.clear()
+                    for (l in listInit) vm.initializeNoteList(l)
 
                     val roomDbTags = vm.getTags()
 
@@ -81,55 +81,61 @@ class MainActivity : ComponentActivity() {
                     }
                     when (control) {
                         "Home" -> Home(
-                            onContinueClicked = {control = "AddNote"},
-                            onExpandClick = {
-                                    note: Note ->
+                            onContinueClicked = { control = "AddNote" },
+                            onExpandClick = { note: Note ->
                                 currentNote = note
                                 control = "ViewNote"
                             },
-                            onDeleteClick = {note: Note ->
+                            onDeleteClick = { note: Note ->
                                 vm.deleteNote(note)
                             },
                             returnByTag = { tag: String ->
                                 var list = emptyList<Note>()
-                                if(tag == "newestOverride")  list = vm.getNotesNewest()
-                                else if(tag =="alphaOverride")list = vm.getNotesAlphabetically()
+                                if (tag == "newestOverride") list = vm.getNotesNewest()
+                                else if (tag == "alphaOverride") list = vm.getNotesAlphabetically()
                                 else list = vm.getNotesByTags(tag)
 
                                 vm.notes.clear()
-                                for(l in list) vm.notes.add(l)
+                                for (l in list) vm.notes.add(l)
 
                             },
-                            textSearch ={
-                                    text: String ->
+                            textSearch = { text: String ->
                                 val list = vm.search(text)
                                 vm.notes.clear()
-                                for(l in list)
-                                {
+                                for (l in list) {
                                     vm.notes.add(l)
                                 }
                             },
                             vm.notes,
                             roomDbTags
                         )
+
                         "AddNote" -> AddNote(onContinueClicked = {
                             control = "Home"
-                            if(noteSavedValue != ""){
-                                if(noteTitle == "")vm.addNote(Note(noteSavedValue, vm.titleCreate(noteSavedValue), date, noteTag))
+                            if (noteSavedValue != "") {
+                                if (noteTitle == "") vm.addNote(
+                                    Note(
+                                        noteSavedValue,
+                                        vm.titleCreate(noteSavedValue),
+                                        date,
+                                        noteTag
+                                    )
+                                )
                                 else vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
                             }
                             noteSavedValue = ""
-                            noteTitle =""
+                            noteTitle = ""
                         },
-                            onCanceledClick ={
+                            onCanceledClick = {
                                 control = "Home"
                             }
                         )
+
                         "ViewNote" -> {
                             NoteView(note = currentNote,
                                 onUpdateNote = { note: Note,
                                                  noteText: String,
-                                                 title: String->
+                                                 title: String ->
                                     note.title = title
                                     note.note = noteText
                                     note.date = date
@@ -137,7 +143,7 @@ class MainActivity : ComponentActivity() {
                                     control = "Home"
                                 },
                                 onUpdateCancel = { control = "Home" },
-                                onDeleteClick = {note: Note ->
+                                onDeleteClick = { note: Note ->
                                     vm.deleteNote(note)
                                 }
                             )

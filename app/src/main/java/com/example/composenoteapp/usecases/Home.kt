@@ -71,25 +71,34 @@ fun Home(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     //Menu Dropdown button
-                    Button(onClick = { isExpanded = !isExpanded },
+                    Button(
+                        onClick = { isExpanded = !isExpanded },
                         //modifier = Modifier.weight(1f)
                     ) {
-                        Icon(imageVector = Icons.Rounded.Menu,
-                            contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Rounded.Menu,
+                            contentDescription = null
+                        )
                     }
                     TextField(
                         value = textSearchValue,
                         label = { Text("Search") },
-                        onValueChange = {textSearchValue = it },
+                        onValueChange = { textSearchValue = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .shadow(4.dp),
                         trailingIcon = {
-                            IconButton(onClick = { Log.d(ContentValues.TAG,"SEARCH BUTTON CLICKED")
-                                textSearch(textSearchValue)},)
+                            IconButton(
+                                onClick = {
+                                    Log.d(ContentValues.TAG, "SEARCH BUTTON CLICKED")
+                                    textSearch(textSearchValue)
+                                },
+                            )
                             {
-                                Icon(imageVector = Icons.Rounded.Search,
-                                    contentDescription =null)
+                                Icon(
+                                    imageVector = Icons.Rounded.Search,
+                                    contentDescription = null
+                                )
                             }
                         },
 
@@ -100,11 +109,14 @@ fun Home(
                 DropdownMenu(
                     expanded = isExpanded,
                     onDismissRequest = { isExpanded = false },
-                    modifier = Modifier
-                    ,
+                    modifier = Modifier,
                 ) {
-                    DropdownMenuItem(text = { Text("Alphabetical") }, onClick = { returnByTag("alphaOverride") })
-                    DropdownMenuItem(text = { Text("Newest") }, onClick = { returnByTag("newestOverride") })
+                    DropdownMenuItem(
+                        text = { Text("Alphabetical") },
+                        onClick = { returnByTag("alphaOverride") })
+                    DropdownMenuItem(
+                        text = { Text("Newest") },
+                        onClick = { returnByTag("newestOverride") })
                     tags.forEach { tag ->
                         DropdownMenuItem(
                             onClick = { returnByTag(tag) },
@@ -146,8 +158,7 @@ fun Home(
 
 @Preview
 @Composable
-fun HomePreview()
-{
+fun HomePreview() {
     val items = listOf("A", "B")
 
     Home(
@@ -155,7 +166,7 @@ fun HomePreview()
         {
 
         },
-        {},{},{},{},
+        {}, {}, {}, {},
         SnapshotStateList<Note>(),
         items
     )

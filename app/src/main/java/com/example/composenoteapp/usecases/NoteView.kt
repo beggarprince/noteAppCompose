@@ -56,10 +56,10 @@ fun NoteView(
     var edit by remember { mutableStateOf(false) }
     var tempTitle by remember { mutableStateOf(note.title) }
     var tempNote by remember { mutableStateOf(note.note) }
-    var  dialogShown by remember { mutableStateOf(false)}
+    var dialogShown by remember { mutableStateOf(false) }
 
-    if(!edit) BackHandler(enabled = true , onUpdateCancel)
-    else if(edit) BackHandler(enabled = true){edit = !edit}
+    if (!edit) BackHandler(enabled = true, onUpdateCancel)
+    else if (edit) BackHandler(enabled = true) { edit = !edit }
     val updateHandler: () -> Unit = {
         onUpdateNote(note, tempNote, tempTitle)
     }
@@ -77,36 +77,39 @@ fun NoteView(
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
 
-if(dialogShown) {
-    Dialog(onDismissRequest = { dialogShown = false }) {
+        if (dialogShown) {
+            Dialog(onDismissRequest = { dialogShown = false }) {
 
-        Box(modifier = Modifier.background(Color.White),
-        ) {
-            Column(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 8.dp)
-                    .defaultMinSize(minHeight = 50.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Delete Note?")
-                Row(modifier = Modifier) {
-                    Button(onClick =  {dialogShown = false} ) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = null)
-                    }
-
-                    Button(onClick = { onDeleteClick(note)
-                    onUpdateCancel()}
+                Box(
+                    modifier = Modifier.background(Color.White),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 8.dp)
+                            .defaultMinSize(minHeight = 50.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(Icons.Rounded.Check, contentDescription = null)
+                        Text(text = "Delete Note?")
+                        Row(modifier = Modifier) {
+                            Button(onClick = { dialogShown = false }) {
+                                Icon(Icons.Rounded.ArrowBack, contentDescription = null)
+                            }
+
+                            Button(onClick = {
+                                onDeleteClick(note)
+                                onUpdateCancel()
+                            }
+                            ) {
+                                Icon(Icons.Rounded.Check, contentDescription = null)
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-}
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -149,9 +152,7 @@ if(dialogShown) {
                         .padding(8.dp)
                         .fillMaxWidth()
                 )
-            }
-
-            else {
+            } else {
                 TextField(
                     value = tempTitle,
                     onValueChange = { tempTitle = it },
@@ -159,8 +160,7 @@ if(dialogShown) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
-                        .heightIn(max = 500.dp)
-                    ,
+                        .heightIn(max = 500.dp),
                     colors = TextFieldDefaults.textFieldColors(
                         //background = MaterialTheme.colorScheme.surface,
                         textColor = MaterialTheme.colorScheme.onSurface,
@@ -191,8 +191,7 @@ if(dialogShown) {
                 modifier = Modifier
                     //.padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth()
-                    .background(gradientFinal)
-                ,
+                    .background(gradientFinal),
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.End
             ) {
@@ -203,9 +202,8 @@ if(dialogShown) {
                         onClick = {
 //                             onDeleteClick(note)
 //                        onUpdateCancel()
-                                  dialogShown = true
-                                  }
-                        ,
+                            dialogShown = true
+                        },
                         modifier = buttonModifier
                     ) {
                         Icon(
@@ -226,8 +224,7 @@ if(dialogShown) {
                         )
                         Text("Edit")
                     }
-                }
-                else {
+                } else {
                     OutlinedButton(
                         onClick = updateHandler,
                         modifier = buttonModifier
@@ -251,15 +248,16 @@ if(dialogShown) {
 
 @Preview
 @Composable
-fun NoteViewPreview()
-{
-    NoteView(note = Note("This is a note\n" +
-            "\n" +
-            "This is another paragraph\n" +
-            "\n" +
-            "lakjdlsfjlsjfsldjfs isjdalkdjfijf kj",
-        "NoteView() Preview","5/13/2023" ,"Unspecified"),
-        { note: Note, string: String, String -> {}},{}, {})
+fun NoteViewPreview() {
+    NoteView(note = Note(
+        "This is a note\n" +
+                "\n" +
+                "This is another paragraph\n" +
+                "\n" +
+                "lakjdlsfjlsjfsldjfs isjdalkdjfijf kj",
+        "NoteView() Preview", "5/13/2023", "Unspecified"
+    ),
+        { note: Note, string: String, String -> {} }, {}, {})
 }
 
 
