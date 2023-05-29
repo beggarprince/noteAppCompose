@@ -69,12 +69,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    if(vm.init == false){
+
                         val listInit = vm.getNotesNewest()
+                        vm.notes.clear()
                         for(l in listInit) vm.initializeNoteList(l)
-                    }
 
                     val roomDbTags = vm.getTags()
+
                     var control by rememberSaveable {
                         mutableStateOf("Home")
                     }

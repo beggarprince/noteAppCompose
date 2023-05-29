@@ -3,18 +3,25 @@ package com.example.composenoteapp
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.composenoteapp.note.Note
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,6 +56,7 @@ fun NoteView(
     var edit by remember { mutableStateOf(false) }
     var tempTitle by remember { mutableStateOf(note.title) }
     var tempNote by remember { mutableStateOf(note.note) }
+    var  dialogShown by remember { mutableStateOf(false)}
 
     if(!edit) BackHandler(enabled = true , onUpdateCancel)
     else if(edit) BackHandler(enabled = true){edit = !edit}
@@ -68,6 +77,36 @@ fun NoteView(
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
 
+if(dialogShown) {
+    Dialog(onDismissRequest = { dialogShown = false }) {
+
+        Box(modifier = Modifier.background(Color.White),
+        ) {
+            Column(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp)
+                    .defaultMinSize(minHeight = 50.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Delete Note?")
+                Row(modifier = Modifier) {
+                    Button(onClick =  {dialogShown = false} ) {
+                        Icon(Icons.Rounded.ArrowBack, contentDescription = null)
+                    }
+
+                    Button(onClick = { onDeleteClick(note)
+                    onUpdateCancel()}
+                    ) {
+                        Icon(Icons.Rounded.Check, contentDescription = null)
+                    }
+                }
+            }
+        }
+    }
+}
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -162,9 +201,11 @@ fun NoteView(
                 if (!edit) {
                     OutlinedButton(
                         onClick = {
-                            onDeleteClick(note)
-                            onUpdateCancel()
-                        },
+//                             onDeleteClick(note)
+//                        onUpdateCancel()
+                                  dialogShown = true
+                                  }
+                        ,
                         modifier = buttonModifier
                     ) {
                         Icon(
