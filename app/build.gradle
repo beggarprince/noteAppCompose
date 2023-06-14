@@ -9,7 +9,8 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.composenoteapp"
+        applicationId "aandroid.paandroidportfolio.composenoteapp" //com.example.composenoteapp to access my old notes
+         //applicationId "com.example.composenoteapp"
         minSdk 26
         targetSdk 33
         versionCode 1

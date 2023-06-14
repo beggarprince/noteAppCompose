@@ -1,6 +1,5 @@
 package com.example.composenoteapp.note
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
