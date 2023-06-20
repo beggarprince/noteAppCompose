@@ -94,7 +94,7 @@ fun NoteItemPreview() {
 fun BigAssNoteItemPreview() {
     NoteItem(
         Note(
-            "This is a note with a shit ton of text on it." +
+            "This is a note with a ton of text on it." +
                     "Ideally the app looks just as beautiful as when the note is a entire paragraph" +
                     "ladjlasfjeijalejfl adl akdjfaifakdjflakdjf aei jlkadfjaoie jkadfjlaiejfklsjfaljdfjla" +
                     "lkajdfla jdlksjfla jfsdjfk jsdlsjfdkajfsifdjskdfjaldij kdlsdjfslidjfkasld;fjs laifjdklajdflsa jsildfj"

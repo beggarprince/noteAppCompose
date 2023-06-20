@@ -111,13 +111,7 @@ fun AddNote(
                         modifier = Modifier
                     )
                 }
-//                OutlinedButton(onClick = {
-//                                         //ADD ACCESS TO PHONE GALLERY
-//                },
-//                modifier = Modifier){
-//                    Icon(imageVector = Icons.Rounded.Face, contentDescription = null,
-//                    modifier = Modifier)
-//                }
+
 
                 OutlinedButton(
                     onClick = onContinueClicked,

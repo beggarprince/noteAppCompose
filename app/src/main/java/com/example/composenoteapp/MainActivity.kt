@@ -3,6 +3,7 @@ package com.example.composenoteapp
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -118,6 +119,12 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 else vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
+                                Toast.makeText(applicationContext, R.string.notesuccesful , Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                //note not added Toast
+                                Toast.makeText(applicationContext, R.string.noteunsuccesful , Toast.LENGTH_SHORT).show();
+
                             }
                             noteSavedValue = ""
                             noteTitle = ""
@@ -141,6 +148,8 @@ class MainActivity : ComponentActivity() {
                                 onUpdateCancel = { control = "Home" },
                                 onDeleteClick = { note: Note ->
                                     vm.deleteNote(note)
+
+                                    Toast.makeText(applicationContext, R.string.notedeleted , Toast.LENGTH_SHORT).show();
                                 }
                             )
                         }

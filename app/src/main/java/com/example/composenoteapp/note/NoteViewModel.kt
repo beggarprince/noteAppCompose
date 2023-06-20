@@ -53,7 +53,8 @@ class NoteViewModel(private val dao: NoteDao) : ViewModel() {
     }
 
     fun titleCreate(note: String): String {
-        val length = 12
+        var length = 12
+        if(length > note.length) length = note.length
         val title = note.substring(0, length) + "..."
         Log.d(TAG, title)
         return title;
