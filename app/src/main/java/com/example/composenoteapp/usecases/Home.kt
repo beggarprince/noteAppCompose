@@ -113,12 +113,17 @@ fun Home(
                     onDismissRequest = { isExpanded = false },
                     modifier = Modifier,
                 ) {
+                    /*
+                     ALPHABETICAL,
+                     NEWEST,
+                     BY_TAG,
+                    * */
                     DropdownMenuItem(
                         text = { Text("Alphabetical") },
-                        onClick = { returnByTag("alphaOverride") })
+                        onClick = { returnByTag("ALPHABETICAL") })
                     DropdownMenuItem(
                         text = { Text("Newest") },
-                        onClick = { returnByTag("newestOverride") })
+                        onClick = { returnByTag("NEWEST") })
                     tags.forEach { tag ->
                         DropdownMenuItem(
                             onClick = { returnByTag(tag) },

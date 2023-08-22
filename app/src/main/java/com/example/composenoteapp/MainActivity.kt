@@ -37,8 +37,7 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(
             applicationContext,
             NoteDatabase::class.java, "my-db"
-        )
-            .allowMainThreadQueries()
+        ).allowMainThreadQueries()
             .build()
 
         val dao = db.noteDao()
@@ -61,7 +60,7 @@ class MainActivity : ComponentActivity() {
                 ) {
 
 
-                    val listInit = vm.getNotesNewest()
+                    val listInit = vm.noteQuery(NoteViewModel.QueryType.NEWEST)
                     vm.notes.clear()
                     for (l in listInit) vm.initializeNoteList(l)
 
@@ -82,10 +81,13 @@ class MainActivity : ComponentActivity() {
                                 vm.deleteNote(note)
                             },
                             returnByTag = { tag: String ->
-                                var list = emptyList<Note>()
-                                if (tag == "newestOverride") list = vm.getNotesNewest()
-                                else if (tag == "alphaOverride") list = vm.getNotesAlphabetically()
-                                else list = vm.getNotesByTags(tag)
+                                val queryEnum: NoteViewModel.QueryType = try {
+                                        NoteViewModel.QueryType.valueOf(tag)
+                                }catch (e: IllegalArgumentException){
+                                    NoteViewModel.QueryType.TAG
+                                }
+
+                                val list = vm.noteQuery(queryEnum, tag)
 
                                 vm.notes.clear()
                                 for (l in list) vm.notes.add(l)

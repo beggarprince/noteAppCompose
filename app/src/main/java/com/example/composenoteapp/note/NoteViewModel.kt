@@ -8,7 +8,7 @@ import com.example.composenoteapp.Room.NoteDao
 
 class NoteViewModel(private val dao: NoteDao) : ViewModel() {
     var notes = mutableStateListOf<Note>()
-    var init = false
+    private var init = false
 
     fun deleteNote(note: Note) {
         notes.remove(note)
@@ -25,13 +25,14 @@ class NoteViewModel(private val dao: NoteDao) : ViewModel() {
         init = true
     }
 
-    fun getNotesAlphabetically(): List<Note> {
+    private fun getNotesAlphabetically(): List<Note> {
         val list = dao.getNotesAlphabetically()
+        Log.d(TAG, "Alphabetical return")
         return if (list.isEmpty()) emptyList()
         else return list
     }
 
-    fun getNotesNewest(): List<Note> {
+    private fun getNotesNewest(): List<Note> {
         val list = dao.getNotesByDateNewest()
         return if (list.isEmpty()) emptyList()
         else return list
@@ -47,7 +48,7 @@ class NoteViewModel(private val dao: NoteDao) : ViewModel() {
         else return list
     }
 
-    fun getNotesByTags(tag: String): List<Note> {
+    private fun getNotesByTags(tag: String): List<Note> {
         val list = dao.getNotesByTag(tag)
         return if (list.isEmpty()) emptyList()
         else return list
@@ -65,6 +66,23 @@ class NoteViewModel(private val dao: NoteDao) : ViewModel() {
         val list = dao.searchText(text)
         return if (list.isEmpty()) emptyList()
         else return list
+    }
+
+    enum class QueryType {
+        ALPHABETICAL,
+        NEWEST,
+        TAG,
+    }
+
+    fun noteQuery(queryType: QueryType, tag: String? = null): List<Note> {
+        return when (queryType) {
+            QueryType.ALPHABETICAL -> getNotesAlphabetically()
+            QueryType.NEWEST -> getNotesNewest()
+            QueryType.TAG -> {
+                if (tag != null) getNotesByTags(tag)
+                else emptyList()
+            }
+        }
     }
 }
 
