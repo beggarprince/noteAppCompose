@@ -23,13 +23,7 @@ import java.time.LocalDate
 import com.example.composenoteapp.Room.NoteDatabase
 import com.example.composenoteapp.note.Note
 import com.example.composenoteapp.note.NoteViewModel
-
-//Can be replaced with lambda
-var noteSavedValue: String = ""
-var noteTitle: String = ""
-lateinit var noteTag: String
-lateinit var date: String
-
+lateinit  var date: String
 
 class MainActivity : ComponentActivity() {
 
@@ -78,9 +72,10 @@ class MainActivity : ComponentActivity() {
                     }
                     when (control) {
                         "Home" -> Home(
-                            onContinueClicked = { control = "AddNote" },
-                            onExpandClick = { note: Note ->
-                                currentNote = note
+                            addNote = { control = "AddNote" },
+                            expandedView = {
+                                    note: Note ->
+                               currentNote = note
                                 control = "ViewNote"
                             },
                             onDeleteClick = { note: Note ->
@@ -107,18 +102,21 @@ class MainActivity : ComponentActivity() {
                             roomDbTags
                         )
 
-                        "AddNote" -> AddNote(onContinueClicked = {
+                        "AddNote" -> AddNote(
+                            saveNote = {
                             control = "Home"
-                            if (noteSavedValue != "") {
-                                if (noteTitle == "") vm.addNote(
-                                    Note(
-                                        noteSavedValue,
-                                        vm.titleCreate(noteSavedValue),
-                                        date,
-                                        noteTag
-                                    )
-                                )
-                                else vm.addNote(Note(noteSavedValue, noteTitle, date, noteTag))
+
+                            if (currentNote.note != "") { //There is in fact a note
+                                if (currentNote.title == "") {
+                                    currentNote.title = vm.titleCreate(currentNote.note)
+                                }
+                                val newNote = Note(
+                                    currentNote.note,
+                                    currentNote.title,
+                                    date,
+                                    currentNote.tag)
+                                 vm.addNote(newNote)
+
                                 Toast.makeText(applicationContext, R.string.notesuccesful , Toast.LENGTH_SHORT).show();
                             }
                             else{
@@ -126,12 +124,12 @@ class MainActivity : ComponentActivity() {
                                 Toast.makeText(applicationContext, R.string.noteunsuccesful , Toast.LENGTH_SHORT).show();
 
                             }
-                            noteSavedValue = ""
-                            noteTitle = ""
+                            currentNote = Note()
                         },
                             onCanceledClick = {
                                 control = "Home"
-                            }
+                            },
+                            note = currentNote
                         )
 
                         "ViewNote" -> {

@@ -9,6 +9,7 @@ import com.example.composenoteapp.Room.NoteDao
 class NoteViewModel(private val dao: NoteDao) : ViewModel() {
     var notes = mutableStateListOf<Note>()
     var init = false
+
     fun deleteNote(note: Note) {
         notes.remove(note)
         dao.delete(note)

@@ -2,7 +2,6 @@ package com.example.composenoteapp
 
 import android.content.ContentValues
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +34,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.composenoteapp.note.Note
@@ -44,8 +42,8 @@ import com.example.composenoteapp.note.NoteItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
-    onContinueClicked: () -> Unit,
-    onExpandClick: (Note) -> Unit,
+    addNote: () -> Unit,
+    expandedView: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
     returnByTag: (String) -> Unit,
     textSearch: (String) -> Unit,
@@ -135,7 +133,7 @@ fun Home(
                 modifier = Modifier.weight(1f) // Occupy remaining space
             ) {
                 items(items = notes) { item ->
-                    NoteItem(note = item, onExpandClick, onDeleteClick)
+                    NoteItem(note = item, expandedView, onDeleteClick)
                 }
             }
 
@@ -148,7 +146,7 @@ fun Home(
                 horizontalArrangement = Arrangement.End,
             ) {
                 Button(
-                    onClick = onContinueClicked,
+                    onClick = addNote,
                     modifier = Modifier,
                 ) {
                     Icon(imageVector = Icons.Rounded.Create, contentDescription = null)

@@ -30,17 +30,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.composenoteapp.note.Note
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddNote(
     modifier: Modifier = Modifier,
-    onContinueClicked: () -> Unit,
-    onCanceledClick: () -> Unit
+    saveNote: () -> Unit,
+    onCanceledClick: () -> Unit,
+    note: Note
 ) {
     var temp by remember { mutableStateOf("") }
     var title by remember { mutableStateOf(("")) }
-    var tag by remember { mutableStateOf("") }
+    var tag by remember { mutableStateOf("")
+    }
+
 
     BackHandler(enabled = true, onCanceledClick)
 
@@ -67,7 +72,7 @@ fun AddNote(
             TextField(
                 value = title, onValueChange = {
                     title = it
-                    noteTitle = it
+                    note.title = it
                 },
                 label = { Text("Enter Title") },
                 modifier = Modifier
@@ -76,7 +81,7 @@ fun AddNote(
             )
             TextField(
                 value = temp,
-                onValueChange = { temp = it; noteSavedValue = it },
+                onValueChange = { temp = it; note.note = it },
                 label = { Text("Type new note") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -90,7 +95,7 @@ fun AddNote(
                 label = { Text("Optional Tag") },
                 onValueChange = {
                     tag = it
-                    noteTag = it
+                    note.tag = it
                 }
             )
             Row(
@@ -114,7 +119,7 @@ fun AddNote(
 
 
                 OutlinedButton(
-                    onClick = onContinueClicked,
+                    onClick = saveNote,
                     modifier = Modifier,
                 ) {
                     Icon(
@@ -129,10 +134,10 @@ fun AddNote(
 
 }
 
-@Preview
-@Composable
-fun AddNotePreview() {
-
-    AddNote(modifier = Modifier,
-        {}, {})
-}
+//@Preview
+//@Composable
+//fun AddNotePreview() {
+//
+//    AddNote(modifier = Modifier,
+//        {}, {}, {})
+//}
